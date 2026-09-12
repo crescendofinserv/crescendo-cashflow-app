@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Crescendo CashFlow</title>
+  <title>Family Cashflow</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-      -webkit-tap-highlight-color: transparent;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0;
       padding: 0;
@@ -28,8 +25,8 @@
       position: fixed;
       top: -120px;
       right: -80px;
-      width: 450px;
-      height: 450px;
+      width: 480px;
+      height: 480px;
       background: radial-gradient(circle, rgba(0, 210, 255, 0.45) 0%, rgba(58, 123, 213, 0.15) 50%, transparent 70%);
       filter: blur(80px);
       z-index: 0;
@@ -37,23 +34,23 @@
     }
     .ambient-2 {
       position: fixed;
-      bottom: -100px;
+      bottom: -120px;
       left: -80px;
-      width: 450px;
-      height: 450px;
+      width: 480px;
+      height: 480px;
       background: radial-gradient(circle, rgba(168, 85, 247, 0.35) 0%, rgba(99, 102, 241, 0.15) 50%, transparent 70%);
       filter: blur(80px);
       z-index: 0;
       pointer-events: none;
     }
 
-    /* Card Tokens */
+    /* Glass Cards */
     .card-tile-cyan {
       background: linear-gradient(180deg, #00d0ff 0%, #0066ff 100%);
       color: #ffffff;
       border-radius: 26px;
       border: 1.5px solid rgba(255, 255, 255, 0.45);
-      box-shadow: 0 16px 32px -8px rgba(0, 102, 255, 0.45);
+      box-shadow: 0 16px 32px -8px rgba(0, 102, 255, 0.48);
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -66,7 +63,7 @@
       -webkit-backdrop-filter: blur(20px);
       border-radius: 26px;
       border: 1.5px solid rgba(255, 255, 255, 0.95);
-      box-shadow: 0 12px 26px -6px rgba(20, 35, 75, 0.05);
+      box-shadow: 0 12px 28px -6px rgba(20, 35, 75, 0.06);
       padding: 16px;
       display: flex;
       flex-direction: column;
@@ -74,7 +71,7 @@
       height: 155px;
     }
 
-    /* Bottom Oceanic Blue Dock */
+    /* Oceanic Bottom Dock */
     .dock-oceanic {
       background: linear-gradient(135deg, #0a193d 0%, #032b5e 50%, #0066eb 100%);
       border-radius: 36px;
@@ -125,18 +122,17 @@
     .hide-sb { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
-<body class="safe-area-inset">
+<body>
 
-  <!-- Ambient Glows -->
   <div class="ambient-1"></div>
   <div class="ambient-2"></div>
 
-  <!-- Main Mobile Viewport Frame -->
+  <!-- Main Mobile App Layout -->
   <div class="flex-1 flex flex-col h-screen max-w-md mx-auto w-full relative z-10 overflow-hidden">
     
-    <!-- Top Notch / Status Area -->
+    <!-- Top Status Bar -->
     <div class="px-6 pt-4 pb-1 flex justify-between items-center text-xs font-black text-slate-500">
-      <span id="liveTime">9:41</span>
+      <span id="liveClock">9:41</span>
       <div class="w-20 h-4 bg-slate-900/15 rounded-full"></div>
       <div class="flex items-center space-x-1.5">
         <span class="text-[10px]">5G</span>
@@ -146,23 +142,26 @@
       </div>
     </div>
 
-    <!-- Screen Title Bar -->
+    <!-- Header Row: App Name "Family Cashflow" & Notification Bell -->
     <div class="px-6 pt-2 pb-2">
       <div class="flex justify-between items-center">
         <div>
-          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Dashboard</span>
+          <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest block">Family Cashflow</span>
           <h1 class="text-xl font-black text-slate-900 leading-tight">
-            HELLO,<br><span class="text-blue-600" id="mHolderName">PRAMESH SHAH</span>
+            HELLO,<br><span class="text-blue-600" id="holderTitle">PRAMESH SHAH</span>
           </h1>
         </div>
         <div class="flex items-center space-x-2">
-          <button onclick="openModal('bond')" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white font-black text-lg shadow-md shadow-blue-500/30 flex items-center justify-center active:scale-95 transition">
+          <!-- Add Button -->
+          <button onclick="openModal('bond')" class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white font-black text-lg shadow-md shadow-blue-500/30 flex items-center justify-center active:scale-95 transition" title="Add Investment / Policy">
             +
           </button>
-          <button onclick="alert('🔔 Connected to Supabase crescendofinserv@gmail.com!')" class="w-10 h-10 rounded-2xl bg-white/85 border border-white text-slate-700 shadow-sm flex items-center justify-center active:scale-95 transition">
+          <!-- Notification Bell with Dynamic Alert Badge -->
+          <button onclick="toggleNotificationCenter()" class="w-10 h-10 rounded-2xl bg-white/85 border border-white text-slate-700 shadow-sm flex items-center justify-center relative active:scale-95 transition" title="Reminders & Notifications">
             <svg class="w-5 h-5 text-slate-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
             </svg>
+            <span id="notifBadge" class="absolute -top-1 -right-1 min-w-[18px] h-[18px] rounded-full bg-rose-500 text-white font-black text-[10px] flex items-center justify-center px-1 shadow-sm animate-pulse">0</span>
           </button>
         </div>
       </div>
@@ -174,8 +173,8 @@
     </div>
 
     <!-- Active Screen Viewport -->
-    <div class="flex-1 overflow-y-auto px-6 space-y-3.5 hide-sb pb-4" id="screenContainer">
-      <!-- Injected via JS based on active screen -->
+    <div class="flex-1 overflow-y-auto px-6 space-y-3.5 hide-sb pb-4" id="screenViewport">
+      <!-- Injected via JS -->
     </div>
 
     <!-- Oceanic Blue Floating Dock Bar -->
@@ -189,7 +188,37 @@
 
   </div>
 
-  <!-- ADD MODAL WITH STRICT 12-CHAR ISIN REQUIREMENT -->
+  <!-- NOTIFICATION CENTER MODAL (1 DAY PRIOR FOR INTEREST, 15 DAYS PRIOR FOR INSURANCE, EVERYDAY LATER UNTIL MARKED) -->
+  <div id="notifCenterModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-white/95 backdrop-blur-2xl rounded-3xl p-6 border border-white shadow-2xl w-full max-w-sm space-y-3.5 max-h-[88vh] overflow-y-auto hide-sb">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+        <div>
+          <h3 class="text-sm font-black text-slate-900">Family Cashflow Reminders</h3>
+          <p class="text-[10px] text-slate-400 font-semibold">Active Interest & Insurance Notifications</p>
+        </div>
+        <button onclick="toggleNotificationCenter()" class="text-slate-400 text-xl leading-none">&times;</button>
+      </div>
+
+      <!-- Rule Summary -->
+      <div class="bg-blue-50/80 p-2.5 rounded-2xl border border-blue-100 text-[10px] text-blue-900 space-y-1">
+        <div>🔔 <b>Interest:</b> Alerts 1 day prior + repeats daily until marked as received.</div>
+        <div>🛡️ <b>Insurance:</b> Alerts 15 days prior + repeats daily until marked as paid.</div>
+      </div>
+
+      <!-- Notification Alerts Feed -->
+      <div class="space-y-2" id="notifList">
+        <!-- Injected via JS -->
+      </div>
+
+      <div class="pt-1">
+        <button onclick="requestPushPermission()" class="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold text-[11px] transition">
+          🔔 Enable Android Push Notifications
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD MODAL WITH STRICT 12-CHAR ISIN VALIDATION -->
   <div id="addModal" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white/95 backdrop-blur-2xl rounded-3xl p-6 border border-white shadow-2xl w-full max-w-sm space-y-3.5 max-h-[90vh] overflow-y-auto hide-sb">
       <div class="flex justify-between items-center border-b border-slate-100 pb-2">
@@ -285,10 +314,10 @@
     let userHoldings = JSON.parse(localStorage.getItem('cf_holdings') || JSON.stringify(INITIAL_HOLDINGS));
     let userIns = JSON.parse(localStorage.getItem('cf_ins') || JSON.stringify(INITIAL_INS));
     let recdMap = JSON.parse(localStorage.getItem('cf_recd') || '{}');
+    let paidMap = JSON.parse(localStorage.getItem('cf_paid') || '{}');
 
     let activeScreen = 'screen1';
     let curHolder = 'All';
-    let curMonth = 'all';
     let sgbPrice = 8500;
     let modalTab = 'bond';
 
@@ -316,7 +345,7 @@
 
     function setHolder(h) {
       curHolder = h;
-      document.getElementById('mHolderName').innerText = h === 'All' ? 'PRAMESH SHAH' : h.toUpperCase();
+      document.getElementById('holderTitle').innerText = h === 'All' ? 'PRAMESH SHAH (FAMILY)' : h.toUpperCase();
       render();
     }
 
@@ -338,6 +367,145 @@
       render();
     }
 
+    function togglePaid(id) {
+      if (paidMap[id]) delete paidMap[id];
+      else paidMap[id] = true;
+      localStorage.setItem('cf_paid', JSON.stringify(paidMap));
+      render();
+    }
+
+    // ==========================================
+    // NOTIFICATION ENGINE: 1 DAY PRIOR INTEREST, 15 DAYS PRIOR INSURANCE, EVERYDAY LATER UNTIL MARKED
+    // ==========================================
+    function getActiveNotifications() {
+      const today = new Date('2025-04-18'); // Reference date in FY 2025-26
+      const alerts = [];
+
+      // 1. Interest alerts (1 day prior, and every day later until marked received)
+      userTxs.forEach(t => {
+        if (recdMap[t.id]) return; // Already received -> clear alert!
+        const txDate = new Date(t.date);
+        const diffMs = txDate - today;
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 1) {
+          alerts.push({
+            id: t.id,
+            type: 'interest',
+            severity: 'upcoming',
+            title: `Tomorrow: ${t.asset} Interest`,
+            desc: `${t.holder} • ${fmt(t.amount)} due tomorrow (${t.date})`,
+            amount: t.amount,
+            date: t.date
+          });
+        } else if (diffDays <= 0) {
+          const overdueDays = Math.abs(diffDays);
+          alerts.push({
+            id: t.id,
+            type: 'interest',
+            severity: 'overdue',
+            title: overdueDays === 0 ? `Due Today: ${t.asset}` : `Pending: ${t.asset} (${overdueDays}d ago)`,
+            desc: `${t.holder} • ${fmt(t.amount)} pending since ${t.date}`,
+            amount: t.amount,
+            date: t.date
+          });
+        }
+      });
+
+      // 2. Insurance alerts (15 days prior, and every day later until marked paid)
+      userIns.forEach(ins => {
+        if (paidMap[ins.id]) return; // Already paid -> clear alert!
+        const dueStr = '2025-' + (ins.renewal_date || '12-22');
+        const dueDate = new Date(dueStr);
+        const diffMs = dueDate - today;
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 0 && diffDays <= 15) {
+          alerts.push({
+            id: ins.id,
+            type: 'insurance',
+            severity: 'upcoming',
+            title: `Due in ${diffDays} days: ${ins.policy_name}`,
+            desc: `${ins.holder} • Premium ${fmt(ins.premium)} due on ${dueStr}`,
+            amount: ins.premium,
+            date: dueStr
+          });
+        } else if (diffDays <= 0) {
+          const overdueDays = Math.abs(diffDays);
+          alerts.push({
+            id: ins.id,
+            type: 'insurance',
+            severity: 'overdue',
+            title: overdueDays === 0 ? `Premium Due Today: ${ins.policy_name}` : `Overdue: ${ins.policy_name} (${overdueDays}d ago)`,
+            desc: `${ins.holder} • Premium ${fmt(ins.premium)} pending payment`,
+            amount: ins.premium,
+            date: dueStr
+          });
+        }
+      });
+
+      return alerts;
+    }
+
+    function toggleNotificationCenter() {
+      const modal = document.getElementById('notifCenterModal');
+      modal.classList.toggle('hidden');
+      renderNotifications();
+    }
+
+    function renderNotifications() {
+      const alerts = getActiveNotifications();
+      const list = document.getElementById('notifList');
+
+      if (alerts.length === 0) {
+        list.innerHTML = `<div class="p-4 text-center text-slate-400 text-xs font-semibold">🎉 All caught up! No pending alerts.</div>`;
+        return;
+      }
+
+      list.innerHTML = alerts.map(a => `
+        <div class="bg-slate-50 border ${a.severity === 'overdue' ? 'border-rose-200 bg-rose-50/40' : 'border-blue-200'} p-3 rounded-2xl space-y-1.5">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="px-2 py-0.5 rounded-md text-[9px] font-black ${a.severity === 'overdue' ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700'}">
+                ${a.severity === 'overdue' ? '🚨 Action Required' : '🔔 1-Day Prior Notice'}
+              </span>
+              <h4 class="text-xs font-black text-slate-800 mt-1">${a.title}</h4>
+              <p class="text-[10px] text-slate-500">${a.desc}</p>
+            </div>
+            <span class="text-xs font-black ${a.type === 'interest' ? 'text-emerald-600' : 'text-rose-500'}">${fmt(a.amount)}</span>
+          </div>
+          <div class="pt-1 flex justify-end">
+            ${a.type === 'interest' ? `
+              <button onclick="toggleRecd('${a.id}'); renderNotifications();" class="px-3 py-1 rounded-xl bg-emerald-500 text-white font-black text-[10px] shadow-sm active:scale-95 transition">
+                ✓ Mark Received
+              </button>
+            ` : `
+              <button onclick="togglePaid('${a.id}'); renderNotifications();" class="px-3 py-1 rounded-xl bg-blue-600 text-white font-black text-[10px] shadow-sm active:scale-95 transition">
+                ✓ Mark Paid
+              </button>
+            `}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function requestPushPermission() {
+      if ('Notification' in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            new Notification('Family Cashflow', {
+              body: 'Daily reminders active: 1-day prior to interest & 15-days prior to insurance!',
+              icon: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+            });
+            alert('✅ Android Push Notifications Enabled!');
+          }
+        });
+      } else {
+        alert('Push notifications enabled for this session.');
+      }
+    }
+
+    // Modal Control
     function openModal(t) {
       document.getElementById('addModal').classList.remove('hidden');
       setModalTab(t || 'bond');
@@ -377,13 +545,13 @@
       if (modalTab === 'bond') {
         const isin = document.getElementById('fIsin').value.trim().toUpperCase();
         if (!isin || isin.length !== 12) {
-          alert('⚠️ MANDATORY ISIN: Must be exactly 12 alphanumeric characters.');
+          alert('⚠️ MANDATORY ISIN: Must be exactly 12 alphanumeric characters (e.g. INE540P07269).');
           document.getElementById('fIsin').focus();
           return;
         }
         const name = document.getElementById('fBondName').value.trim() || 'Bond';
-        const fv = parseFloat(document.getElementById('fFaceValue').value) || 0;
-        const c = parseFloat(document.getElementById('fCoupon').value) || 0;
+        const fv = parseFloat(document.getElementById('fFaceValue').value) || 1000000;
+        const c = parseFloat(document.getElementById('fCoupon').value) || 7.5;
         const freq = document.getElementById('fFreq').value;
         const d = document.getElementById('fDate').value || '2025-05-24';
 
@@ -443,6 +611,16 @@
     }
 
     function render() {
+      // Update Notification Badge
+      const activeAlerts = getActiveNotifications();
+      const badge = document.getElementById('notifBadge');
+      if (activeAlerts.length > 0) {
+        badge.innerText = activeAlerts.length;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+
       // Render Holder Pills
       document.getElementById('holderPills').innerHTML = HOLDERS.map(h => `
         <button onclick="setHolder('${h.id}')" class="px-3.5 py-1.5 rounded-full text-xs font-black whitespace-nowrap transition ${h.id === curHolder ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-sm' : 'bg-white/80 text-slate-600'}">
@@ -476,7 +654,7 @@
         }
       });
 
-      const container = document.getElementById('screenContainer');
+      const container = document.getElementById('screenViewport');
 
       if (activeScreen === 'screen1') {
         container.innerHTML = `
@@ -529,11 +707,11 @@
 
           <!-- Feed Header -->
           <div class="flex justify-between items-center px-1 pt-1">
-            <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Scheduled Coupons</span>
+            <span class="text-xs font-black text-slate-800 uppercase tracking-wider">Scheduled Coupons (${txs.length})</span>
             <button onclick="openModal('bond')" class="text-[10px] font-extrabold text-blue-600 hover:underline">+ Add Bond</button>
           </div>
 
-          <!-- Feed -->
+          <!-- Feed with Working Mark Recd -->
           <div class="space-y-2">
             ${txs.map(t => {
               const isDone = !!recdMap[t.id];
@@ -567,7 +745,7 @@
         const strokeOffset = 270 - (270 * pct / 100);
         container.innerHTML = `
           <div class="bg-white/85 backdrop-blur-xl rounded-3xl p-6 border border-white shadow-sm text-center space-y-3.5">
-            <span class="text-xs font-black text-slate-400 tracking-widest uppercase block">Coupon Collection</span>
+            <span class="text-xs font-black text-slate-400 tracking-widest uppercase block">Coupon Collection Progress</span>
             <div class="relative w-48 h-48 mx-auto flex items-center justify-center">
               <svg class="w-full h-full -rotate-90" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="43" stroke="#e8ecf4" stroke-width="7" fill="transparent" />
@@ -608,7 +786,7 @@
         container.innerHTML = `
           <div class="space-y-3">
             <div class="bg-blue-50 border border-blue-200 rounded-2xl p-3 text-xs text-blue-900">
-              🛡️ <b>Smart PPT:</b> Premiums stop automatically after PPT period.
+              🛡️ <b>Smart PPT:</b> Premiums stop automatically after PPT period expires.
             </div>
             ${userIns.map(ins => `
               <div class="bg-white/85 rounded-2xl p-4 border border-white space-y-2 shadow-xs">
@@ -630,15 +808,14 @@
       }
     }
 
-    // Real-time Clock
-    function updateClock() {
+    function updateLiveClock() {
       const d = new Date();
       let h = d.getHours();
       let m = d.getMinutes();
-      document.getElementById('liveTime').innerText = `${h}:${m < 10 ? '0' : ''}${m}`;
+      document.getElementById('liveClock').innerText = `${h}:${m < 10 ? '0' : ''}${m}`;
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
 
     render();
   </script>
