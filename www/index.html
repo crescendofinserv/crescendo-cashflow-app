@@ -663,6 +663,75 @@
       align-items: center;
       margin-bottom: 14px;
     }
+    
+    /* PIN Security Modal Styles */
+    .pin-dots-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 18px 0 24px;
+    }
+    .pin-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      background: transparent;
+      transition: all 0.15s ease;
+    }
+    .pin-dot.filled {
+      background: var(--brand-green);
+      border-color: var(--brand-green);
+      box-shadow: 0 0 10px rgba(10, 62, 47, 0.3);
+      transform: scale(1.15);
+    }
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 270px;
+      margin: 0 auto;
+    }
+    .pin-key {
+      height: 52px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      background: #f8faf9;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.1s ease;
+    }
+    .pin-key:active {
+      background: #e2e8f0;
+      transform: scale(0.95);
+    }
+    .pin-key.action-key {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .pin-error-msg {
+      color: var(--accent-coral-text);
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      height: 18px;
+      margin-bottom: 12px;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+    .shake {
+      animation: shake 0.35s ease-in-out;
+    }
+
     .modal-close-btn {
       width: 30px;
       height: 30px;
@@ -701,6 +770,9 @@
           <div class="header-sub" id="dynHeaderSub">Your income and commitments, at a glance.</div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
+          <button class="notif-btn" id="privacyBtn" onclick="handlePrivacyClick()" title="Privacy Mode">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
           <button class="notif-btn" onclick="openNotifs()" title="Alerts & Reminders">
             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
             <div class="notif-badge" id="notifBadge" style="display:none;"></div>
@@ -785,6 +857,86 @@
     let insurance = safeGet('fc_ins_v5', SEED_INS);
     let recdMap = safeGet('fc_recd_v5', {});
     let paidMap = safeGet('fc_paid_v5', {});
+    let isPrivacyMode = safeGet('fc_privacy_v5', false);
+    const PRIVACY_PIN = '636590';
+    let enteredPin = '';
+
+    function handlePrivacyClick() {
+      if (!isPrivacyMode) {
+        isPrivacyMode = true;
+        safeSet('fc_privacy_v5', true);
+        render();
+      } else {
+        openPinModal();
+      }
+    }
+
+    function openPinModal() {
+      enteredPin = '';
+      renderPinModal();
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function renderPinModal(errorMsg = '') {
+      let html = '<div class="modal-drag-bar"></div>';
+      html += '<div class="modal-hdr">';
+      html += '  <div><h3 style="font-size:17px;font-weight:800;color:var(--text-dark);">Enter Privacy PIN</h3><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Enter 6-digit passcode to reveal figures</div></div>';
+      html += '  <button class="modal-close-btn" onclick="closeModal()">✕</button>';
+      html += '</div>';
+
+      html += '<div class="pin-dots-row ' + (errorMsg ? 'shake' : '') + '">';
+      for (let i = 0; i < 6; i++) {
+        html += '<div class="pin-dot ' + (i < enteredPin.length ? 'filled' : '') + '"></div>';
+      }
+      html += '</div>';
+
+      html += '<div class="pin-error-msg">' + (errorMsg || '') + '</div>';
+
+      html += '<div class="pin-keypad">';
+      const keys = ['1','2','3','4','5','6','7','8','9','Cancel','0','⌫'];
+      keys.forEach(k => {
+        if (k === 'Cancel') {
+          html += '<button class="pin-key action-key" onclick="closeModal()">' + k + '</button>';
+        } else if (k === '⌫') {
+          html += '<button class="pin-key action-key" data-key="' + k + '" onclick="pressPinKey(this.dataset.key)">' + k + '</button>';
+        } else {
+          html += '<button class="pin-key" data-key="' + k + '" onclick="pressPinKey(this.dataset.key)">' + k + '</button>';
+        }
+      });
+      html += '</div>';
+
+      document.getElementById('modalContent').innerHTML = html;
+    }
+
+    function pressPinKey(k) {
+      if (k === '⌫') {
+        if (enteredPin.length > 0) {
+          enteredPin = enteredPin.slice(0, -1);
+          renderPinModal();
+        }
+        return;
+      }
+      if (enteredPin.length < 6) {
+        enteredPin += k;
+        renderPinModal();
+
+        if (enteredPin.length === 6) {
+          if (enteredPin === PRIVACY_PIN) {
+            isPrivacyMode = false;
+            safeSet('fc_privacy_v5', false);
+            setTimeout(() => {
+              closeModal();
+              render();
+            }, 180);
+          } else {
+            setTimeout(() => {
+              enteredPin = '';
+              renderPinModal('Incorrect PIN. Please try again.');
+            }, 220);
+          }
+        }
+      }
+    }
 
     if (!holdings || !holdings.length) holdings = SEED_HOLDINGS;
     if (!transactions || !transactions.length) transactions = SEED_TX;
@@ -843,9 +995,11 @@
 
     // ── Formatting Helpers ──
     function fmt(val) {
+      if (isPrivacyMode) return '₹ ••••••';
       return '₹ ' + Math.round(val || 0).toLocaleString('en-IN');
     }
     function fmtShort(val) {
+      if (isPrivacyMode) return '₹ ••••••';
       val = val || 0;
       if (val >= 10000000) return '₹ ' + (val / 10000000).toFixed(2) + ' Cr';
       if (val >= 100000) return '₹ ' + (val / 100000).toFixed(2) + ' L';
@@ -989,6 +1143,24 @@
 
     // ── Main Render Function ──
     function render() {
+      // Update Privacy Toggle Button
+      const privBtn = document.getElementById('privacyBtn');
+      if (privBtn) {
+        if (isPrivacyMode) {
+          privBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>';
+          privBtn.title = "Privacy Mode Active (Tap to enter PIN and reveal amounts)";
+          privBtn.style.color = "var(--accent-coral-text)";
+          privBtn.style.borderColor = "var(--accent-coral-badge)";
+          privBtn.style.background = "var(--accent-coral-bg)";
+        } else {
+          privBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>';
+          privBtn.title = "Privacy Mode (Tap to mask figures)";
+          privBtn.style.color = "var(--text-dark)";
+          privBtn.style.borderColor = "var(--card-border)";
+          privBtn.style.background = "#ffffff";
+        }
+      }
+
       // 1. Member Pills
       const pillContainer = document.getElementById('memberPills');
       pillContainer.innerHTML = MEMBERS.map(m => {
