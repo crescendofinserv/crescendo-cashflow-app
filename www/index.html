@@ -1019,7 +1019,7 @@
       }
     }
 
-    const DEFAULT_EXPENSES = [{"id": "exp_1", "title": "Torrent Power Electricity Bill", "holder": "Pramesh R Shah", "paid_from": "HDFC Bank (Pramesh)", "category": "Utilities", "amount": 8500, "due_date": "2026-04-18", "is_recurring": true, "frequency": "Monthly", "bill_no": "TOR-2026-04-8891"}, {"id": "exp_2", "title": "Building Society Maintenance Q1", "holder": "PRS HUF", "paid_from": "Bank of Baroda (Pramesh Shah HUF)", "category": "Society Maintenance", "amount": 18000, "due_date": "2026-04-05", "is_recurring": true, "frequency": "Quarterly", "bill_no": "MAINT-Q1-2026"}, {"id": "exp_3", "title": "CA Audit & Income Tax Retainer", "holder": "PRS HUF", "paid_from": "Bank of Baroda (Pramesh Shah HUF)", "category": "Professional Fees", "amount": 25000, "due_date": "2026-07-15", "is_recurring": true, "frequency": "Yearly", "bill_no": "—"}];
+    const DEFAULT_EXPENSES = [{"id": "exp_1", "title": "Torrent Power Electricity Bill", "holder": "Pramesh R Shah", "paid_from": "Pramesh Kotak", "category": "Utilities", "amount": 8500, "due_date": "2026-04-18", "is_recurring": true, "frequency": "Monthly", "bill_no": "TOR-2026-04-8891"}, {"id": "exp_2", "title": "Building Society Maintenance Q1", "holder": "PRS HUF", "paid_from": "PRS HUF Kotak", "category": "Society Maintenance", "amount": 18000, "due_date": "2026-04-05", "is_recurring": true, "frequency": "Quarterly", "bill_no": "MAINT-Q1-2026"}, {"id": "exp_3", "title": "CA Audit & Income Tax Retainer", "holder": "PRS HUF", "paid_from": "PRS HUF IDFC", "category": "Professional Fees", "amount": 25000, "due_date": "2026-07-15", "is_recurring": true, "frequency": "Yearly", "bill_no": "\u2014"}, {"id": "exp_4", "title": "Star Health Family Mediclaim", "holder": "SAAHIL P SHAH", "paid_from": "Saahil Kotak", "category": "Medical & Healthcare", "amount": 32000, "due_date": "2025-11-20", "is_recurring": true, "frequency": "Yearly", "bill_no": "MED-2025-901"}, {"id": "exp_5", "title": "Advance Property Tax Municipal", "holder": "UNNATI P SHAH", "paid_from": "Unnati IDFC", "category": "Taxes & Statutory", "amount": 14500, "due_date": "2025-06-10", "is_recurring": true, "frequency": "Yearly", "bill_no": "AMC-TAX-2025"}, {"id": "exp_6", "title": "Office High-Speed Broadband & Cloud", "holder": "Arjin", "paid_from": "Arjin Kotak", "category": "Subscriptions", "amount": 4200, "due_date": "2026-05-02", "is_recurring": true, "frequency": "Monthly", "bill_no": "FIBER-8812"}];
     const DEFAULT_CATS = ['Utilities', 'Society Maintenance', 'Professional Fees', 'Medical & Healthcare', 'Taxes & Statutory', 'Subscriptions', 'General'];
     const ALL_INDIAN_INSURERS = [
     "LIC of India (Life Insurance Corporation)",
@@ -1062,38 +1062,49 @@
     "Acko General Insurance"
 ];
     const DEFAULT_ACCS = [
-    "Kotak Mahindra Bank (Pramesh R Shah)",
-    "IDFC FIRST Bank (Pramesh R Shah)",
-    "Kotak Mahindra Bank (UNNATI P SHAH)",
-    "IDFC FIRST Bank (UNNATI P SHAH)",
-    "Kotak Mahindra Bank (SAAHIL P SHAH)",
-    "IDFC FIRST Bank (SAAHIL P SHAH)",
-    "Kotak Mahindra Bank (Krisha Saahil Shah)",
-    "IDFC FIRST Bank (Krisha Saahil Shah)",
-    "Kotak Mahindra Bank (PRS HUF)",
-    "IDFC FIRST Bank (PRS HUF)",
-    "Kotak Mahindra Bank (SPS HUF)",
-    "IDFC FIRST Bank (SPS HUF)",
-    "Kotak Mahindra Bank (Arjin)",
-    "IDFC FIRST Bank (Arjin)",
-    "HDFC Bank (Pramesh)",
-    "ICICI Bank (Saahil)",
-    "Bank of Baroda (PRS HUF)",
-    "State Bank of India"
+    "Pramesh Kotak",
+    "Pramesh IDFC",
+    "Unnati Kotak",
+    "Unnati IDFC",
+    "Saahil Kotak",
+    "Saahil IDFC",
+    "Krisha Kotak",
+    "Krisha IDFC",
+    "PRS HUF Kotak",
+    "PRS HUF IDFC",
+    "SPS HUF Kotak",
+    "SPS HUF IDFC",
+    "Arjin Kotak",
+    "Arjin IDFC"
 ];
-    const OLD_ACCS = ['HDFC Bank (Pramesh)', 'ICICI Bank (Saahil)', 'Kotak Mahindra Bank (Unnati)', 'Bank of Baroda (Pramesh Shah HUF)', 'State Bank of India'];
+    
 
     let holdings = safeGet('fc_holdings_v7', SEED_HOLDINGS);
     let transactions = safeGet('fc_tx_v7', SEED_TX);
     let insurance = safeGet('fc_ins_v7', SEED_INS);
     let expenses = safeGet('fc_expenses_v7', DEFAULT_EXPENSES);
     let expenseCategories = safeGet('fc_exp_cats_v7', DEFAULT_CATS);
-    let bankAccounts = safeGet('fc_bank_accs_v7', DEFAULT_ACCS);
+        function sanitizeBankAccounts(stored) {
+      if (!Array.isArray(stored) || stored.length === 0) return DEFAULT_ACCS;
+      const cleaned = stored.filter(a => {
+        if (a.includes('Kotak Mahindra Bank')) return false;
+        if (a.includes('IDFC FIRST Bank')) return false;
+        if (a.includes('HDFC Bank')) return false;
+        if (a.includes('Bank of Baroda')) return false;
+        if (a.includes('ICICI Bank')) return false;
+        if (a.includes('State Bank of India')) return false;
+        return true;
+      });
+      const finalSet = new Set([...DEFAULT_ACCS, ...cleaned]);
+      return Array.from(finalSet);
+    }
+    let bankAccounts = sanitizeBankAccounts(safeGet('fc_bank_accs_v7', DEFAULT_ACCS));
     let recdMap = safeGet('fc_recd_v7', {});
     let paidMap = safeGet('fc_paid_v7', {});
     let expPaidMap = safeGet('fc_exp_paid_v7', {});
     let isPrivacyMode = safeGet('fc_privacy_v7', false);
     let outflowSubTab = 'all';
+    let expenseAnalyticsYear = 'all'; // 'all', '2026', '2025', etc.
     function setOutflowSubTab(tab) { outflowSubTab = tab; render(); } // 'all', 'insurance', 'expenses'
 
     if (!holdings || !holdings.length) holdings = SEED_HOLDINGS;
@@ -2327,6 +2338,7 @@
         h += '    </div>';
         h += '  </div>';
         h += '  <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">';
+        h += '    <button onclick="setOutflowSubTab(\'analytics\')" class="act-pill-btn" style="background:#f0fdf4;color:var(--brand-green);border:1px solid #bbf7d0;padding:4px 8px;font-size:10.5px;">📊 Category Stats</button>';
         h += '    <button onclick="openExpenseModal()" class="act-pill-btn" style="background:var(--brand-green);color:#fff;border:none;padding:5px 10px;">+ Expense</button>';
         h += '    <button onclick="openInsuranceModal()" class="act-pill-btn" style="padding:4px 8px;font-size:10px;">+ Policy</button>';
         h += '  </div>';
@@ -2334,9 +2346,10 @@
 
         // Segmented Sub-Tab Control: [ All | Insurance | Expenses ]
         h += '<div class="segmented-control" style="margin-top:10px;">';
-        h += '  <button class="seg-btn ' + (outflowSubTab === 'all' ? 'active' : '') + '" onclick="setOutflowSubTab(\'all\')" >All (' + (fIns.length + fExp.length) + ')</button>';
-        h += '  <button class="seg-btn ' + (outflowSubTab === 'insurance' ? 'active' : '') + '" onclick="setOutflowSubTab(\'insurance\')" >Insurance (' + fIns.length + ')</button>';
-        h += '  <button class="seg-btn ' + (outflowSubTab === 'expenses' ? 'active' : '') + '" onclick="setOutflowSubTab(\'expenses\')" >Expenses (' + fExp.length + ')</button>';
+        h += '  <button class="seg-btn ' + (outflowSubTab === 'all' ? 'active' : '') + '" onclick="setOutflowSubTab(\'all\')">All (' + (fIns.length + fExp.length) + ')</button>';
+        h += '  <button class="seg-btn ' + (outflowSubTab === 'insurance' ? 'active' : '') + '" onclick="setOutflowSubTab(\'insurance\')">Insurance (' + fIns.length + ')</button>';
+        h += '  <button class="seg-btn ' + (outflowSubTab === 'expenses' ? 'active' : '') + '" onclick="setOutflowSubTab(\'expenses\')">Expenses (' + fExp.length + ')</button>';
+        h += '  <button class="seg-btn ' + (outflowSubTab === 'analytics' ? 'active' : '') + '" onclick="setOutflowSubTab(\'analytics\')">Stats 📊</button>';
         h += '</div>';
 
         // ── SECTION A: EXPENSES LIST ──
@@ -2446,10 +2459,165 @@
           }
         }
 
+        
+        // ── SECTION C: CATEGORY STATS & MULTI-YEAR SPENDING ANALYTICS ──
+        if (outflowSubTab === 'analytics') {
+          // Calculate Spending Stats across years and categories
+          let allTargetExps = expenses.filter(e => currentHolder === 'All' || e.holder.toUpperCase() === currentHolder.toUpperCase());
+          
+          // Available Years in expenses data
+          const allYears = Array.from(new Set(allTargetExps.map(e => (e.due_date ? e.due_date.slice(0, 4) : '2026')))).sort();
+          if (!allYears.includes('2026')) allYears.push('2026');
+          allYears.sort();
+
+          // Filter by selected year if not 'all'
+          let filteredExps = expenseAnalyticsYear === 'all' 
+            ? allTargetExps 
+            : allTargetExps.filter(e => e.due_date && e.due_date.slice(0, 4) === expenseAnalyticsYear);
+
+          const grandTotal = filteredExps.reduce((sum, e) => sum + e.amount, 0);
+
+          // Category-wise totals & counts
+          const catMap = {};
+          filteredExps.forEach(e => {
+            const cat = e.category || 'General';
+            if (!catMap[cat]) catMap[cat] = { name: cat, total: 0, count: 0, items: [] };
+            catMap[cat].total += e.amount;
+            catMap[cat].count++;
+            catMap[cat].items.push(e);
+          });
+          const sortedCats = Object.values(catMap).sort((a, b) => b.total - a.total);
+
+          // Year-wise totals for multi-year trend
+          const yrTotals = {};
+          allTargetExps.forEach(e => {
+            const yr = e.due_date ? e.due_date.slice(0, 4) : '2026';
+            yrTotals[yr] = (yrTotals[yr] || 0) + e.amount;
+          });
+          const sortedTrendYears = Object.keys(yrTotals).sort();
+          const maxYearSpend = Math.max(...Object.values(yrTotals), 1);
+
+          // Bank Account Breakdown
+          const accMap = {};
+          filteredExps.forEach(e => {
+            const acc = e.paid_from || 'Other';
+            accMap[acc] = (accMap[acc] || 0) + e.amount;
+          });
+          const sortedAccs = Object.keys(accMap).sort((a, b) => accMap[b] - accMap[a]);
+
+          // Header & Year Filter Bar
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 2px 2px;">';
+          h += '  <div><span style="font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Expense Analytics & Stats</span>';
+          h += '  <div style="font-size:10.5px;color:var(--text-light);margin-top:1px;">Category spending & multi-year distribution</div></div>';
+          h += '</div>';
+
+          // Multi-Year Filter Pills
+          h += '<div style="display:flex;gap:6px;overflow-x:auto;padding:4px 0 8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;">';
+          h += '  <button class="act-pill-btn ' + (expenseAnalyticsYear === 'all' ? 'sell' : '') + '" style="' + (expenseAnalyticsYear === 'all' ? 'background:var(--brand-green);color:#fff;border-color:var(--brand-green);' : '') + 'padding:4px 10px;font-size:11px;" onclick="expenseAnalyticsYear=\'all\';render();">All Years (' + fmt(allTargetExps.reduce((s,e)=>s+e.amount,0)) + ')</button>';
+          allYears.forEach(yr => {
+            const isSel = expenseAnalyticsYear === yr;
+            const yrTotal = yrTotals[yr] || 0;
+            h += '<button class="act-pill-btn ' + (isSel ? 'sell' : '') + '" style="' + (isSel ? 'background:var(--brand-green);color:#fff;border-color:var(--brand-green);' : '') + 'padding:4px 10px;font-size:11px;" onclick="expenseAnalyticsYear=\'' + yr + '\';render();">' + yr + ' (' + fmt(yrTotal) + ')</button>';
+          });
+          h += '</div>';
+
+          // Multi-Year Trend Card (Spending Over the Years)
+          h += '<div class="clean-card" style="padding:15px;">';
+          h += '  <div class="chart-header" style="margin-bottom:8px;">';
+          h += '    <div><span class="chart-title">Spending Over the Years</span><div style="font-size:10px;color:var(--brand-green);font-weight:700;margin-top:2px;">👆 Tap any bar to filter that year</div></div>';
+          h += '    <span style="font-size:11px;color:var(--text-muted);">' + sortedTrendYears.length + ' Recorded Years</span>';
+          h += '  </div>';
+          h += '  <div style="display:flex;align-items:flex-end;height:85px;gap:12px;padding-bottom:4px;border-bottom:1px solid var(--card-border);">';
+          sortedTrendYears.forEach(yr => {
+            const amt = yrTotals[yr];
+            const barH = Math.max(10, Math.round((amt / maxYearSpend) * 65));
+            const isSel = expenseAnalyticsYear === yr;
+            h += '<div onclick="expenseAnalyticsYear=\'' + yr + '\';render();" style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;">';
+            h += '  <div style="font-size:8.5px;font-weight:700;color:' + (isSel ? 'var(--brand-green)' : 'var(--text-muted)') + ';">' + (amt >= 100000 ? (amt/100000).toFixed(1)+'L' : (amt/1000).toFixed(0)+'k') + '</div>';
+            h += '  <div style="width:100%;max-width:32px;height:' + barH + 'px;border-radius:4px 4px 0 0;background:' + (isSel ? 'var(--brand-green)' : '#94a3b8') + ';box-shadow:0 2px 6px rgba(0,0,0,0.1);transition:all 0.2s ease;"></div>';
+            h += '  <span style="font-size:9.5px;font-weight:800;color:' + (isSel ? 'var(--brand-green)' : 'var(--text-dark)') + ';">' + yr + '</span>';
+            h += '</div>';
+          });
+          h += '  </div>';
+          h += '  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:11px;color:var(--text-muted);">';
+          h += '    <span>Total Filtered Spend: <b style="color:var(--accent-coral-text);">' + fmt(grandTotal) + '</b></span>';
+          h += '    <span>Monthly Avg: <b style="color:var(--brand-green);">' + fmt(Math.round(grandTotal / 12)) + '/mo</b></span>';
+          h += '  </div>';
+          h += '</div>';
+
+          // Category-wise Breakdown Cards with Visual Meters
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 2px 0;">';
+          h += '  <span style="font-size:11.5px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Category-Wise Spend Breakdown (' + sortedCats.length + ')</span>';
+          h += '  <button class="act-pill-btn" onclick="openExpenseModal()" style="font-size:10px;">+ Add Expense</button>';
+          h += '</div>';
+
+          if (sortedCats.length === 0) {
+            h += '<div class="clean-card" style="text-align:center;padding:20px;color:var(--text-muted);font-size:12px;">No expenses recorded for this selection.</div>';
+          } else {
+            h += '<div style="display:flex;flex-direction:column;gap:10px;">';
+            const catColors = ['#0a3e2f', '#0284c7', '#d97706', '#dc2626', '#7c3aed', '#059669', '#475569'];
+            sortedCats.forEach((cat, idx) => {
+              const pct = grandTotal > 0 ? (cat.total / grandTotal) * 100 : 0;
+              const color = catColors[idx % catColors.length];
+              const monthlyAvg = Math.round(cat.total / 12);
+
+              h += '<div class="clean-card" style="padding:14px;border-left:4px solid ' + color + ';">';
+              h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+              h += '    <div>';
+              h += '      <span class="pill-badge" style="background:#f1f5f9;color:var(--text-dark);font-size:9.5px;font-weight:800;">' + cat.name + '</span>';
+              h += '      <div style="font-size:15px;font-weight:800;color:var(--text-dark);margin-top:4px;">' + fmt(cat.total) + '</div>';
+              h += '      <div style="font-size:10.5px;color:var(--text-muted);margin-top:2px;">' + cat.count + ' transaction' + (cat.count === 1 ? '' : 's') + ' • Avg <b>' + fmt(monthlyAvg) + '/mo</b></div>';
+              h += '    </div>';
+              h += '    <div style="text-align:right;">';
+              h += '      <div style="font-size:16px;font-weight:800;color:' + color + ';">' + pct.toFixed(1) + '%</div>';
+              h += '      <span style="font-size:10px;color:var(--text-light);">of total spend</span>';
+              h += '    </div>';
+              h += '  </div>';
+
+              // Visual Progress Bar Fill
+              h += '  <div style="width:100%;height:6px;background:#f1f5f9;border-radius:999px;margin:10px 0 8px;overflow:hidden;">';
+              h += '    <div style="width:' + pct.toFixed(1) + '%;height:100%;background:' + color + ';border-radius:999px;transition:width 0.4s ease;"></div>';
+              h += '  </div>';
+
+              // Item details preview
+              h += '  <div style="display:flex;flex-direction:column;gap:4px;padding-top:6px;border-top:1px dashed var(--card-border);">';
+              cat.items.forEach(it => {
+                h += '  <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;">';
+                h += '    <span style="color:var(--text-dark);">' + it.title + ' <span style="color:var(--text-muted);font-size:10px;">(' + it.paid_from + ')</span></span>';
+                h += '    <b style="color:var(--accent-coral-text);">' + fmt(it.amount) + '</b>';
+                h += '  </div>';
+              });
+              h += '  </div>';
+
+              h += '</div>';
+            });
+            h += '</div>';
+          }
+
+          // Bank Accounts Used Summary
+          if (sortedAccs.length > 0) {
+            h += '<div style="margin-top:4px;">';
+            h += '  <div style="font-size:11.5px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;padding:4px 2px 6px;">Paid From Bank Accounts</div>';
+            h += '  <div class="clean-card" style="padding:12px 14px;">';
+            h += '    <div style="display:flex;flex-direction:column;gap:8px;">';
+            sortedAccs.forEach(acc => {
+              const amt = accMap[acc];
+              const pct = grandTotal > 0 ? (amt / grandTotal) * 100 : 0;
+              h += '    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">';
+              h += '      <div><b style="color:var(--text-dark);">' + acc + '</b> <span style="font-size:10px;color:var(--text-light);">(' + pct.toFixed(0) + '%)</span></div>';
+              h += '      <div style="font-weight:800;color:var(--text-dark);">' + fmt(amt) + '</div>';
+              h += '    </div>';
+            });
+            h += '    </div>';
+            h += '  </div>';
+            h += '</div>';
+          }
+        }
+
         viewport.innerHTML = h;
       }
 
-      // ═════════════════════════════════════════════════════════════
+              // ═════════════════════════════════════════════════════════════
       // VIEW 4: ASSETS & MATURITY — WITH CLICKABLE BARS & SELL OPTION
       // ═════════════════════════════════════════════════════════════
       else if (currentTab === 'assets') {
