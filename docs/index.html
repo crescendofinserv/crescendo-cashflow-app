@@ -1950,6 +1950,58 @@
       }
     }
 
+        // ── REUSABLE MATURITY BY YEAR COMPONENT ──
+    function getMaturityChartHtml(fHoldings) {
+      const yearBuckets = {};
+      fHoldings.forEach(item => {
+        const yr = item.maturity_year || '2099';
+        if (!yearBuckets[yr]) {
+          yearBuckets[yr] = { year: yr, totalFV: 0, sgbGrams: 0, count: 0 };
+        }
+        if (item.grams > 0) {
+          yearBuckets[yr].sgbGrams += item.grams;
+        } else {
+          yearBuckets[yr].totalFV += item.face_value;
+        }
+        yearBuckets[yr].count++;
+      });
+      const sortedYrs = Object.keys(yearBuckets).sort();
+      const maxYearVal = Math.max(...sortedYrs.map(y => yearBuckets[y].totalFV + (yearBuckets[y].sgbGrams * sgbMarketPrice)), 1);
+
+      let h = '';
+      h += '<div class="clean-card" style="padding:16px 14px 12px;overflow:hidden;margin-top:6px;">';
+      h += '  <div class="chart-header" style="margin-bottom:6px;">';
+      h += '    <div>';
+      h += '      <span class="chart-title">Maturity by Year</span>';
+      h += '      <div style="font-size:10px;color:var(--brand-green);font-weight:700;margin-top:2px;display:flex;align-items:center;gap:4px;">';
+      h += '        <span>👆 Tap bar for details</span>';
+      h += '        <span style="color:var(--text-light);">•</span>';
+      h += '        <span style="color:#b45309;">Scroll horizontally →</span>';
+      h += '      </div>';
+      h += '    </div>';
+      h += '    <span class="pill-badge" style="background:#eef2ef;color:var(--brand-green);font-size:10px;font-weight:800;">' + sortedYrs.length + ' Milestones</span>';
+      h += '  </div>';
+
+      if (sortedYrs.length === 0) {
+        h += '  <div style="text-align:center;padding:18px 10px;font-size:11.5px;color:var(--text-muted);">No maturing investments found for this member.</div>';
+      } else {
+        h += '  <div class="maturity-chart-scroll">';
+        sortedYrs.forEach(y => {
+          const b = yearBuckets[y];
+          const val = b.totalFV + (b.sgbGrams * sgbMarketPrice);
+          const bH = Math.max(8, Math.round((val / maxYearVal) * 72));
+          h += '  <div class="maturity-year-col" data-year="' + y + '" onclick="openYearMaturityModal(this.dataset.year)" title="Tap to view ' + y + ' bonds (' + b.count + ' items, ' + fmt(val) + ')">';
+          h += '    <div style="font-size:8px;font-weight:700;color:var(--text-muted);">' + (val >= 10000000 ? (val/10000000).toFixed(1)+'Cr' : (val/100000).toFixed(0)+'L') + '</div>';
+          h += '    <div class="bar-pill" style="height:' + bH + 'px;"></div>';
+          h += '    <span style="font-size:9px;font-weight:800;color:var(--text-dark);">' + y + '</span>';
+          h += '  </div>';
+        });
+        h += '  </div>';
+      }
+      h += '</div>';
+      return h;
+    }
+
     function render() {
       // Update Privacy Toggle Button Icon
       const privBtn = document.getElementById('privacyBtn');
@@ -2218,6 +2270,9 @@
 
           h += '</div>';
         }
+
+        // Maturity by Year Interactive Schedule on Dashboard
+        h += getMaturityChartHtml(fHoldings);
 
         viewport.innerHTML = h;
       }
@@ -2698,47 +2753,7 @@
         h += '</div>';
 
         // Clickable Maturity by Year Schedule
-        const yearBuckets = {};
-        fHoldings.forEach(item => {
-          const yr = item.maturity_year || '2099';
-          if (!yearBuckets[yr]) {
-            yearBuckets[yr] = { year: yr, totalFV: 0, sgbGrams: 0, count: 0 };
-          }
-          if (item.grams > 0) {
-            yearBuckets[yr].sgbGrams += item.grams;
-          } else {
-            yearBuckets[yr].totalFV += item.face_value;
-          }
-          yearBuckets[yr].count++;
-        });
-        const sortedYrs = Object.keys(yearBuckets).sort();
-        const maxYearVal = Math.max(...sortedYrs.map(y => yearBuckets[y].totalFV + (yearBuckets[y].sgbGrams * sgbMarketPrice)), 1);
-
-        h += '<div class="clean-card" style="padding:16px 14px 12px;overflow:hidden;">';
-        h += '  <div class="chart-header" style="margin-bottom:6px;">';
-        h += '    <div>';
-        h += '      <span class="chart-title">Maturity by Year</span>';
-        h += '      <div style="font-size:10px;color:var(--brand-green);font-weight:700;margin-top:2px;display:flex;align-items:center;gap:4px;">';
-        h += '        <span>👆 Tap bar for details</span>';
-        h += '        <span style="color:var(--text-light);">•</span>';
-        h += '        <span style="color:#b45309;">Scroll horizontally →</span>';
-        h += '      </div>';
-        h += '    </div>';
-        h += '    <span class="pill-badge" style="background:#eef2ef;color:var(--brand-green);font-size:10px;font-weight:800;">' + sortedYrs.length + ' Milestones</span>';
-        h += '  </div>';
-        h += '  <div class="maturity-chart-scroll">';
-        sortedYrs.forEach(y => {
-          const b = yearBuckets[y];
-          const val = b.totalFV + (b.sgbGrams * sgbMarketPrice);
-          const bH = Math.max(8, Math.round((val / maxYearVal) * 72));
-          h += '  <div class="maturity-year-col" data-year="' + y + '" onclick="openYearMaturityModal(this.dataset.year)" title="Tap to view ' + y + ' bonds (' + b.count + ' items, ' + fmt(val) + ')">';
-          h += '    <div style="font-size:8px;font-weight:700;color:var(--text-muted);">' + (val >= 10000000 ? (val/10000000).toFixed(1)+'Cr' : (val/100000).toFixed(0)+'L') + '</div>';
-          h += '    <div class="bar-pill" style="height:' + bH + 'px;"></div>';
-          h += '    <span style="font-size:9px;font-weight:800;color:var(--text-dark);">' + y + '</span>';
-          h += '  </div>';
-        });
-        h += '  </div>';
-        h += '</div>';
+        h += getMaturityChartHtml(fHoldings);
 
         // Holdings Directory with Sell & Details Buttons
         h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 2px;">';
@@ -2763,8 +2778,8 @@
           h += '  </div>';
 
           h += '  <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--card-border);">';
-          h += '    <button class="act-pill-btn sell" data-id="' + h.id + '" onclick="openSellModal(this.dataset.id)">Sell / Exit</button>';
-          h += '    <button class="act-pill-btn" data-id="' + h.id + '" onclick="openBondModal(this.dataset.id)">Details</button>';
+          h += '    <button class="act-pill-btn sell" data-id="' + hItem.id + '" onclick="openSellModal(this.dataset.id)">Sell / Exit</button>';
+          h += '    <button class="act-pill-btn" data-id="' + hItem.id + '" onclick="openBondModal(this.dataset.id)">Details</button>';
           h += '  </div>';
           h += '</div>';
         });
