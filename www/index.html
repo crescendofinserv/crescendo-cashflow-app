@@ -901,12 +901,22 @@
       }
     }
 
-    let holdings = safeGet('fc_holdings_v6', SEED_HOLDINGS);
-    let transactions = safeGet('fc_tx_v6', SEED_TX);
-    let insurance = safeGet('fc_ins_v6', SEED_INS);
-    let recdMap = safeGet('fc_recd_v6', {});
-    let paidMap = safeGet('fc_paid_v6', {});
-    let isPrivacyMode = safeGet('fc_privacy_v6', false);
+    const DEFAULT_EXPENSES = [{"id": "exp_1", "title": "Torrent Power Electricity Bill", "holder": "Pramesh R Shah", "paid_from": "HDFC Bank (Pramesh)", "category": "Utilities", "amount": 8500, "due_date": "2026-04-18", "is_recurring": true, "frequency": "Monthly", "bill_no": "TOR-2026-04-8891"}, {"id": "exp_2", "title": "Building Society Maintenance Q1", "holder": "Pramesh Shah HUF", "paid_from": "Bank of Baroda (Pramesh Shah HUF)", "category": "Society Maintenance", "amount": 18000, "due_date": "2026-04-05", "is_recurring": true, "frequency": "Quarterly", "bill_no": "MAINT-Q1-2026"}, {"id": "exp_3", "title": "CA Audit & Income Tax Retainer", "holder": "Pramesh Shah HUF", "paid_from": "Bank of Baroda (Pramesh Shah HUF)", "category": "Professional Fees", "amount": 25000, "due_date": "2026-07-15", "is_recurring": true, "frequency": "Yearly", "bill_no": "—"}];
+    const DEFAULT_CATS = ['Utilities', 'Society Maintenance', 'Professional Fees', 'Medical & Healthcare', 'Taxes & Statutory', 'Subscriptions', 'General'];
+    const DEFAULT_ACCS = ['HDFC Bank (Pramesh)', 'ICICI Bank (Saahil)', 'Kotak Mahindra Bank (Unnati)', 'Bank of Baroda (Pramesh Shah HUF)', 'State Bank of India'];
+
+    let holdings = safeGet('fc_holdings_v7', SEED_HOLDINGS);
+    let transactions = safeGet('fc_tx_v7', SEED_TX);
+    let insurance = safeGet('fc_ins_v7', SEED_INS);
+    let expenses = safeGet('fc_expenses_v7', DEFAULT_EXPENSES);
+    let expenseCategories = safeGet('fc_exp_cats_v7', DEFAULT_CATS);
+    let bankAccounts = safeGet('fc_bank_accs_v7', DEFAULT_ACCS);
+    let recdMap = safeGet('fc_recd_v7', {});
+    let paidMap = safeGet('fc_paid_v7', {});
+    let expPaidMap = safeGet('fc_exp_paid_v7', {});
+    let isPrivacyMode = safeGet('fc_privacy_v7', false);
+    let outflowSubTab = 'all';
+    function setOutflowSubTab(tab) { outflowSubTab = tab; render(); } // 'all', 'insurance', 'expenses'
 
     if (!holdings || !holdings.length) holdings = SEED_HOLDINGS;
     if (!transactions || !transactions.length) transactions = SEED_TX;
@@ -914,12 +924,12 @@
 
     function resetAllData() {
       try {
-        localStorage.removeItem('fc_holdings_v6');
-        localStorage.removeItem('fc_tx_v6');
-        localStorage.removeItem('fc_ins_v6');
-        localStorage.removeItem('fc_recd_v6');
-        localStorage.removeItem('fc_paid_v6');
-        localStorage.removeItem('fc_privacy_v6');
+        localStorage.removeItem('fc_holdings_v7');
+        localStorage.removeItem('fc_tx_v7');
+        localStorage.removeItem('fc_ins_v7');
+        localStorage.removeItem('fc_recd_v7');
+        localStorage.removeItem('fc_paid_v7');
+        localStorage.removeItem('fc_privacy_v7');
       } catch (e) {}
       holdings = JSON.parse(JSON.stringify(SEED_HOLDINGS));
       transactions = JSON.parse(JSON.stringify(SEED_TX));
@@ -973,7 +983,7 @@
     function handlePrivacyClick() {
       if (!isPrivacyMode) {
         isPrivacyMode = true;
-        safeSet('fc_privacy_v6', true);
+        safeSet('fc_privacy_v7', true);
         render();
       } else {
         openPinModal();
@@ -1032,7 +1042,7 @@
         if (enteredPin.length === 6) {
           if (enteredPin === PRIVACY_PIN) {
             isPrivacyMode = false;
-            safeSet('fc_privacy_v6', false);
+            safeSet('fc_privacy_v7', false);
             setTimeout(() => {
               closeModal();
               render();
@@ -1098,13 +1108,13 @@
 
     function toggleRecd(txId) {
       recdMap[txId] = !recdMap[txId];
-      safeSet('fc_recd_v6', recdMap);
+      safeSet('fc_recd_v7', recdMap);
       render();
     }
 
     function togglePaid(insId) {
       paidMap[insId] = !paidMap[insId];
-      safeSet('fc_paid_v6', paidMap);
+      safeSet('fc_paid_v7', paidMap);
       render();
     }
 
@@ -1130,7 +1140,7 @@
       html += '  <button class="modal-close-btn" onclick="closeModal()">✕</button>';
       html += '</div>';
 
-      html += '<form onsubmit="saveInsurance(event, \'' + (editId || '') + '\')" style="display:flex;flex-direction:column;gap:10px;font-size:12px;">';
+      html += '<form onsubmit="saveInsurance(event, this.dataset.id)" data-id="' + (editId || '') + '" style="display:flex;flex-direction:column;gap:10px;font-size:12px;">';
       html += '<div><label style="font-weight:700;display:block;margin-bottom:3px;">Portfolio Member</label>';
       html += '<select id="ins_holder" style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
       MEMBERS.filter(m => m.id !== 'All').forEach(m => {
@@ -1199,7 +1209,7 @@
         };
         insurance.push(newPolicy);
       }
-      safeSet('fc_ins_v6', insurance);
+      safeSet('fc_ins_v7', insurance);
       closeModal();
       render();
     }
@@ -1210,8 +1220,8 @@
       if (confirm('Are you sure you want to delete policy: ' + ins.plan_name + ' (' + ins.policy_no + ')?')) {
         insurance = insurance.filter(i => i.id !== insId);
         delete paidMap[insId];
-        safeSet('fc_ins_v6', insurance);
-        safeSet('fc_paid_v6', paidMap);
+        safeSet('fc_ins_v7', insurance);
+        safeSet('fc_paid_v7', paidMap);
         render();
       }
     }
@@ -1232,7 +1242,7 @@
       html += '  <div style="margin-top:2px;">Current Quantity: <b>' + h.qty + ' ' + h.qty_unit + '</b> • Total FV: <b>' + fmt(h.face_value) + '</b></div>';
       html += '</div>';
 
-      html += '<form onsubmit="confirmSellHolding(event, \'' + h.id + '\')" style="display:flex;flex-direction:column;gap:10px;font-size:12px;">';
+      html += '<form onsubmit="confirmSellHolding(event, this.dataset.id)" data-id="' + h.id + '" style="display:flex;flex-direction:column;gap:10px;font-size:12px;">';
       html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
       html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Sell Date</label><input type="date" id="sell_date" value="2026-09-14" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
       html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Quantity to Sell (' + h.qty_unit + ')</label><input type="number" step="any" id="sell_qty" value="' + h.qty + '" max="' + h.qty + '" min="1" oninput="calcSellTotal()" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
@@ -1292,8 +1302,8 @@
         });
       }
 
-      safeSet('fc_holdings_v6', holdings);
-      safeSet('fc_tx_v6', transactions);
+      safeSet('fc_holdings_v7', holdings);
+      safeSet('fc_tx_v7', transactions);
       closeModal();
       alert('✓ Successfully sold ' + sellQty + ' ' + h.qty_unit + ' of ' + h.asset_name + '\nTotal Realized: ₹ ' + Math.round(totalProceeds).toLocaleString('en-IN'));
       render();
@@ -1336,8 +1346,8 @@
           html += '  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--card-border);">';
           html += '    <span class="pill-badge surplus" style="font-size:9.5px;">' + h.coupon_pct + '% Coupon</span>';
           html += '    <div style="display:flex;gap:6px;">';
-          html += '      <button class="act-pill-btn sell" onclick="openSellModal(\'' + h.id + '\')">Sell / Exit</button>';
-          html += '      <button class="act-pill-btn" onclick="openBondModal(\'' + h.id + '\')">Details</button>';
+          html += '      <button class="act-pill-btn sell" data-id="' + h.id + '" onclick="openSellModal(this.dataset.id)">Sell / Exit</button>';
+          html += '      <button class="act-pill-btn" data-id="' + h.id + '" onclick="openBondModal(this.dataset.id)">Details</button>';
           html += '    </div>';
           html += '  </div>';
           html += '</div>';
@@ -1427,6 +1437,201 @@
     }
 
     // ── Main Render Function ──
+    
+    // ── EXPENSES MANAGEMENT & RECURRING BILLS ──
+        function promptAndAddCategory() {
+      const newCat = prompt('Enter New Expense Category name:');
+      if (newCat && newCat.trim()) {
+        const cat = newCat.trim();
+        if (!expenseCategories.includes(cat)) {
+          expenseCategories.push(cat);
+          safeSet('fc_exp_cats_v7', expenseCategories);
+        }
+        const sel = document.getElementById('exp_cat');
+        if (sel) {
+          const opt = document.createElement('option');
+          opt.value = cat;
+          opt.textContent = cat;
+          opt.selected = true;
+          sel.appendChild(opt);
+        }
+      }
+    }
+
+    function promptAndAddAccount() {
+      const newAcc = prompt('Enter Bank Account or Payment Method:');
+      if (newAcc && newAcc.trim()) {
+        const acc = newAcc.trim();
+        if (!bankAccounts.includes(acc)) {
+          bankAccounts.push(acc);
+          safeSet('fc_bank_accs_v7', bankAccounts);
+        }
+        const sel = document.getElementById('exp_acc');
+        if (sel) {
+          const opt = document.createElement('option');
+          opt.value = acc;
+          opt.textContent = acc;
+          opt.selected = true;
+          sel.appendChild(opt);
+        }
+      }
+    }
+
+    function toggleExpPaid(expId) {
+      expPaidMap[expId] = !expPaidMap[expId];
+      safeSet('fc_exp_paid_v7', expPaidMap);
+      render();
+    }
+
+    function openUpdateBillModal(expId) {
+      const exp = expenses.find(e => e.id === expId);
+      if (!exp) return;
+      let html = '<div class="modal-drag-bar"></div>';
+      html += '<div class="modal-hdr">';
+      html += '  <div><h3 style="font-size:16.5px;font-weight:800;color:var(--text-dark);">Update Bill / Invoice Number</h3><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + exp.title + '</div></div>';
+      html += '  <button class="modal-close-btn" onclick="closeModal()">✕</button>';
+      html += '</div>';
+
+      html += '<form onsubmit="saveBillNumber(event, this.dataset.id)" data-id="' + exp.id + '" style="display:flex;flex-direction:column;gap:12px;font-size:12.5px;margin-top:6px;">';
+      html += '<div><label style="font-weight:700;display:block;margin-bottom:4px;">Bill / Invoice Number</label>';
+      html += '<input type="text" id="upd_bill_no" value="' + (exp.bill_no === '—' ? '' : exp.bill_no) + '" placeholder="e.g. TOR-2026-MAY-9041" required style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--card-border);font-size:13px;">';
+      html += '</div>';
+      html += '<button type="submit" style="background:var(--brand-green);color:#ffffff;border:none;padding:11px;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;">Save Bill Number</button>';
+      html += '</form>';
+
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modalOverlay').style.display = 'flex';
+      setTimeout(() => {
+        const inp = document.getElementById('upd_bill_no');
+        if (inp) inp.focus();
+      }, 100);
+    }
+
+    function saveBillNumber(e, expId) {
+      e.preventDefault();
+      const exp = expenses.find(i => i.id === expId);
+      if (!exp) return;
+      const billNo = document.getElementById('upd_bill_no').value.trim() || '—';
+      exp.bill_no = billNo;
+      safeSet('fc_expenses_v7', expenses);
+      closeModal();
+      render();
+    }
+
+    function openExpenseModal(editId = null) {
+      const exp = editId ? expenses.find(e => e.id === editId) : null;
+      let html = '<div class="modal-drag-bar"></div>';
+      html += '<div class="modal-hdr">';
+      html += '  <h3 style="font-size:16.5px;font-weight:800;color:var(--text-dark);">' + (exp ? 'Edit Expense' : 'Add Outflow Expense') + '</h3>';
+      html += '  <button class="modal-close-btn" onclick="closeModal()">✕</button>';
+      html += '</div>';
+
+      html += '<form onsubmit="saveExpense(event, this.dataset.id)" data-id="' + (editId || '') + '" style="display:flex;flex-direction:column;gap:10px;font-size:12px;">';
+      
+      html += '<div><label style="font-weight:700;display:block;margin-bottom:3px;">Expense Title / Description</label>';
+      html += '<input type="text" id="exp_title" value="' + (exp ? exp.title : '') + '" placeholder="e.g. Torrent Power Electricity Bill" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
+      html += '</div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Paid For Member</label>';
+      html += '  <select id="exp_holder" style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
+      MEMBERS.filter(m => m.id !== 'All').forEach(m => {
+        const sel = exp && exp.holder === m.id ? 'selected' : '';
+        html += '<option value="' + m.id + '" ' + sel + '>' + m.name + '</option>';
+      });
+      html += '  </select></div>';
+
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Category</label>';
+      html += '  <div style="display:flex;gap:4px;"><select id="exp_cat" style="flex:1;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
+      expenseCategories.forEach(c => {
+        const sel = exp && exp.category === c ? 'selected' : '';
+        html += '<option value="' + c + '" ' + sel + '>' + c + '</option>';
+      });
+      html += '  </select><button type="button" onclick="promptAndAddCategory()" style="padding:6px 9px;border-radius:8px;border:1px solid var(--card-border);background:#f1f5f9;font-weight:800;" title="Add Category">+</button></div></div>';
+      html += '</div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Paid From Account</label>';
+      html += '  <div style="display:flex;gap:4px;"><select id="exp_acc" style="flex:1;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
+      bankAccounts.forEach(a => {
+        const sel = exp && exp.paid_from === a ? 'selected' : '';
+        html += '<option value="' + a + '" ' + sel + '>' + a + '</option>';
+      });
+      html += '  </select><button type="button" onclick="promptAndAddAccount()" style="padding:6px 9px;border-radius:8px;border:1px solid var(--card-border);background:#f1f5f9;font-weight:800;" title="Add Account">+</button></div></div>';
+
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Amount (₹)</label>';
+      html += '  <input type="number" id="exp_amount" value="' + (exp ? exp.amount : '') + '" placeholder="8500" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '</div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Due / Expense Date</label>';
+      html += '  <input type="date" id="exp_date" value="' + (exp ? exp.due_date : '2026-04-18') + '" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Recurring Frequency</label>';
+      html += '  <select id="exp_freq" style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
+      ['Monthly', 'Quarterly', 'Yearly', 'One-Time'].forEach(f => {
+        const sel = exp && exp.frequency === f ? 'selected' : '';
+        html += '<option value="' + f + '" ' + sel + '>' + f + '</option>';
+      });
+      html += '  </select></div>';
+      html += '</div>';
+
+      html += '<div><label style="font-weight:700;display:block;margin-bottom:3px;">Bill / Invoice Number (can be updated later)</label>';
+      html += '<input type="text" id="exp_bill_no" value="' + (exp ? exp.bill_no : '') + '" placeholder="e.g. TOR-2026-04-8891 (optional)" style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
+      html += '</div>';
+
+      html += '<button type="submit" style="background:var(--brand-green);color:#ffffff;border:none;padding:11px;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;margin-top:6px;">' + (exp ? 'Update Expense' : 'Save Expense') + '</button>';
+      html += '</form>';
+
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function saveExpense(e, editId) {
+      e.preventDefault();
+      const title = document.getElementById('exp_title').value.trim();
+      const holder = document.getElementById('exp_holder').value;
+      const category = document.getElementById('exp_cat').value;
+      const paid_from = document.getElementById('exp_acc').value;
+      const amount = parseFloat(document.getElementById('exp_amount').value) || 0;
+      const due_date = document.getElementById('exp_date').value;
+      const frequency = document.getElementById('exp_freq').value;
+      const bill_no = document.getElementById('exp_bill_no').value.trim() || '—';
+
+      if (editId) {
+        const idx = expenses.findIndex(i => i.id === editId);
+        if (idx !== -1) {
+          expenses[idx] = {
+            ...expenses[idx],
+            title, holder, category, paid_from, amount, due_date, frequency,
+            is_recurring: frequency !== 'One-Time', bill_no
+          };
+        }
+      } else {
+        const newExp = {
+          id: 'exp_' + Date.now(),
+          title, holder, category, paid_from, amount, due_date, frequency,
+          is_recurring: frequency !== 'One-Time', bill_no
+        };
+        expenses.push(newExp);
+      }
+      safeSet('fc_expenses_v7', expenses);
+      closeModal();
+      render();
+    }
+
+    function deleteExpense(expId) {
+      const exp = expenses.find(i => i.id === expId);
+      if (!exp) return;
+      if (confirm('Are you sure you want to delete expense: ' + exp.title + ' (' + fmt(exp.amount) + ')?')) {
+        expenses = expenses.filter(i => i.id !== expId);
+        delete expPaidMap[expId];
+        safeSet('fc_expenses_v7', expenses);
+        safeSet('fc_exp_paid_v7', expPaidMap);
+        render();
+      }
+    }
+
     function render() {
       // Update Privacy Toggle Button Icon
       const privBtn = document.getElementById('privacyBtn');
@@ -1463,15 +1668,20 @@
       const fTxs = transactions.filter(t => currentHolder === 'All' || t.holder.toUpperCase() === currentHolder.toUpperCase());
       const fIns = insurance.filter(i => currentHolder === 'All' || i.holder.toUpperCase() === currentHolder.toUpperCase());
 
+      // 3b. Filter Expenses by Member
+      const fExp = expenses.filter(e => currentHolder === 'All' || e.holder.toUpperCase() === currentHolder.toUpperCase());
+
       // 4. FY 2026-27 Inflows
       const fyTxs = fTxs.filter(t => t.date >= FY_START && t.date <= FY_END);
       const totFYInflow = fyTxs.reduce((sum, t) => sum + t.amount, 0);
       const recdFYInflow = fyTxs.filter(t => recdMap[t.id]).reduce((sum, t) => sum + t.amount, 0);
 
-      // 5. FY 2026-27 Outflow (Insurance)
-      const totFYOutflow = fIns.reduce((sum, ins) => sum + ins.premium, 0);
+      // 5. FY 2026-27 Outflow: Insurance + Expenses
+      const totFYInsurance = fIns.reduce((sum, ins) => sum + ins.premium, 0);
+      const totFYExpenses = fExp.reduce((sum, exp) => sum + exp.amount, 0);
+      const totFYOutflow = totFYInsurance + totFYExpenses;
 
-      // 6. Net Cashflow (Surplus)
+      // 6. Net Cashflow (Surplus starting from Current FY)
       const netCashflow = totFYInflow - totFYOutflow;
 
       // 7. Monthly aggregates
@@ -1493,6 +1703,13 @@
         const mObj = FY_MONTHS.find(item => item.key === mKey);
         if (mObj) {
           monthlyOutflows[mObj.short] += ins.premium;
+        }
+      });
+      fExp.forEach(exp => {
+        const mKey = exp.due_date.slice(5, 7);
+        const mObj = FY_MONTHS.find(item => item.key === mKey);
+        if (mObj) {
+          monthlyOutflows[mObj.short] += exp.amount;
         }
       });
       const maxMonthlyVal = Math.max(...Object.values(monthlyInflows), ...Object.values(monthlyOutflows), 1);
@@ -1671,7 +1888,7 @@
               h += '    <div class="coupon-action-row">';
               h += '      <button onclick="toggleRecd(\'' + t.id + '\')" class="btn-mark-recd ' + (isDone ? 'done' : 'pending') + '">' + (isDone ? '✓ Recd' : 'Mark Recd') + '</button>';
               if (parentHId) {
-                h += '    <button onclick="openBondModal(\'' + parentHId + '\')" class="btn-dots" title="Bond Summary"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button>';
+                h += '    <button data-id="' + hItem.id + '" onclick="openBondModal(this.dataset.id)" class="btn-dots" title="Bond Summary"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button>';
               }
               h += '    </div>';
               h += '  </div>';
@@ -1700,7 +1917,7 @@
             h += '    <div class="coupon-action-row">';
             h += '      <button onclick="toggleRecd(\'' + t.id + '\')" class="btn-mark-recd ' + (isDone ? 'done' : 'pending') + '">' + (isDone ? '✓ Recd' : 'Mark Recd') + '</button>';
             if (parentHId) {
-              h += '    <button onclick="openBondModal(\'' + parentHId + '\')" class="btn-dots" title="Bond Summary"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button>';
+              h += '    <button data-id="' + hItem.id + '" onclick="openBondModal(this.dataset.id)" class="btn-dots" title="Bond Summary"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button>';
             }
             h += '    </div>';
             h += '  </div>';
@@ -1737,59 +1954,135 @@
       }
 
       // ═════════════════════════════════════════════════════════════
-      // VIEW 3: OUTFLOW (INSURANCE) — WITH ADD / EDIT / DELETE
+      // VIEW 3: OUTFLOW (INSURANCE & EXPENSES)
       // ═════════════════════════════════════════════════════════════
       else if (currentTab === 'outflow') {
         let h = '';
 
         h += '<div class="subpage-header">';
         h += '  <button onclick="switchTab(\'dashboard\')" class="nav-arrow-btn"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>';
-        h += '  <div><div class="subpage-title">Insurance Outflow</div><div class="subpage-sub">Commitments & policy schedules</div></div>';
-        h += '  <button class="nav-arrow-btn" onclick="openInsuranceModal()" title="Add Policy"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></button>';
+        h += '  <div><div class="subpage-title">Outflow & Commitments</div><div class="subpage-sub">Insurance & Recurring Expenses</div></div>';
+        h += '  <div style="display:flex;gap:4px;">';
+        h += '    <button class="nav-arrow-btn" onclick="openExpenseModal()" title="Add Expense"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></button>';
+        h += '  </div>';
         h += '</div>';
 
-        // Outflow Total Banner
+        // Outflow Summary Banner Card
         h += '<div class="month-banner-card">';
         h += '  <div class="month-banner-left">';
-        h += '    <div class="icon-circle outflow" style="margin-bottom:0;width:42px;height:42px;"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>';
-        h += '    <div><div class="stat-lbl">Annual Premium Due</div><div class="stat-amt" style="color:var(--accent-coral-text);margin:2px 0 0;">' + fmt(totFYOutflow) + '</div></div>';
+        h += '    <div class="icon-circle outflow" style="margin-bottom:0;width:42px;height:42px;"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>';
+        h += '    <div>';
+        h += '      <div class="stat-lbl">Total Annual Outflow</div>';
+        h += '      <div class="stat-amt" style="color:var(--accent-coral-text);margin:2px 0 0;">' + fmt(totFYOutflow) + '</div>';
+        h += '      <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Ins: ' + fmt(totFYInsurance) + ' • Exp: ' + fmt(totFYExpenses) + '</div>';
+        h += '    </div>';
         h += '  </div>';
-        h += '  <button onclick="openInsuranceModal()" class="pill-badge" style="background:var(--brand-green);color:#ffffff;border:none;cursor:pointer;padding:6px 12px;">+ Add Policy</button>';
+        h += '  <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">';
+        h += '    <button onclick="openExpenseModal()" class="act-pill-btn" style="background:var(--brand-green);color:#fff;border:none;padding:5px 10px;">+ Expense</button>';
+        h += '    <button onclick="openInsuranceModal()" class="act-pill-btn" style="padding:4px 8px;font-size:10px;">+ Policy</button>';
+        h += '  </div>';
         h += '</div>';
 
-        // Policy Cards
-        if (fIns.length === 0) {
-          h += '<div class="clean-card" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12.5px;">No insurance policies listed for this portfolio.<br><button onclick="openInsuranceModal()" style="margin-top:10px;background:var(--brand-green);color:#fff;border:none;padding:6px 14px;border-radius:10px;font-weight:700;cursor:pointer;">+ Add Policy</button></div>';
-        } else {
-          h += '<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">';
-          fIns.forEach(p => {
-            const isPaid = !!paidMap[p.id];
-            h += '<div class="clean-card" style="padding:16px;">';
-            h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-            h += '    <div>';
-            h += '      <span class="pill-badge" style="background:var(--accent-coral-badge);color:var(--accent-coral-text);font-size:10px;">' + p.insurer + '</span>';
-            h += '      <div style="font-size:15px;font-weight:800;color:var(--text-dark);margin-top:4px;">' + p.plan_name + '</div>';
-            h += '      <div style="font-size:11.5px;color:var(--text-muted);">' + p.holder + ' • Policy: ' + p.policy_no + '</div>';
-            h += '    </div>';
-            h += '    <div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:var(--accent-coral-text);">' + fmt(p.premium) + '</div><span style="font-size:10px;color:var(--text-muted);">' + p.frequency + '</span></div>';
-            h += '  </div>';
+        // Segmented Sub-Tab Control: [ All | Insurance | Expenses ]
+        h += '<div class="segmented-control" style="margin-top:10px;">';
+        h += '  <button class="seg-btn ' + (outflowSubTab === 'all' ? 'active' : '') + '" onclick="setOutflowSubTab(\'all\')" >All (' + (fIns.length + fExp.length) + ')</button>';
+        h += '  <button class="seg-btn ' + (outflowSubTab === 'insurance' ? 'active' : '') + '" onclick="setOutflowSubTab(\'insurance\')" >Insurance (' + fIns.length + ')</button>';
+        h += '  <button class="seg-btn ' + (outflowSubTab === 'expenses' ? 'active' : '') + '" onclick="setOutflowSubTab(\'expenses\')" >Expenses (' + fExp.length + ')</button>';
+        h += '</div>';
 
-            h += '  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;background:#f8faf9;border-radius:12px;padding:10px;margin:12px 0;font-size:11px;border:1px solid var(--card-border);">';
-            h += '    <div><span style="color:var(--text-muted);display:block;">PPT / Term</span><b style="color:var(--text-dark);">' + p.ppt_years + ' Yrs / ' + p.policy_term + ' Yrs</b></div>';
-            h += '    <div><span style="color:var(--text-muted);display:block;">Next Due Date</span><b style="color:var(--brand-green);">' + toDDMMYYYY(p.next_due) + '</b></div>';
-            h += '    <div><span style="color:var(--text-muted);display:block;">Sum Assured</span><b style="color:var(--text-dark);">' + fmtShort(p.sum_assured) + '</b></div>';
-            h += '  </div>';
-
-            h += '  <div style="display:flex;gap:8px;align-items:center;">';
-            h += '    <button onclick="togglePaid(\'' + p.id + '\')" class="btn-mark-recd ' + (isPaid ? 'done' : 'pending') + '" style="flex:1;padding:9px;border-radius:12px;font-size:12px;">';
-            h += '      ' + (isPaid ? '✓ Marked as Paid for Current FY' : 'Mark as Paid') + '';
-            h += '    </button>';
-            h += '    <button onclick="openInsuranceModal(\'' + p.id + '\')" class="act-pill-btn" style="padding:8px 12px;border-radius:12px;">✏️ Edit</button>';
-            h += '    <button onclick="deleteInsurance(\'' + p.id + '\')" class="act-pill-btn danger" style="padding:8px 12px;border-radius:12px;">🗑️</button>';
-            h += '  </div>';
-            h += '</div>';
-          });
+        // ── SECTION A: EXPENSES LIST ──
+        if (outflowSubTab === 'all' || outflowSubTab === 'expenses') {
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 2px 2px;">';
+          h += '  <span style="font-size:11.5px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Family Expenses (' + fExp.length + ')</span>';
+          h += '  <button class="act-pill-btn" onclick="openExpenseModal()" style="font-size:10.5px;">+ Add Expense</button>';
           h += '</div>';
+
+          if (fExp.length === 0) {
+            h += '<div class="clean-card" style="text-align:center;padding:18px;color:var(--text-muted);font-size:12px;">No expenses listed for this member. Tap + Add Expense above.</div>';
+          } else {
+            h += '<div style="display:flex;flex-direction:column;gap:10px;">';
+            fExp.forEach(e => {
+              const isPaid = !!expPaidMap[e.id];
+              h += '<div class="clean-card" style="padding:14px;border-left:4px solid ' + (isPaid ? 'var(--brand-green)' : '#f87171') + ';">';
+              h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+              h += '    <div style="max-width:70%;">';
+              h += '      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
+              h += '        <span class="pill-badge" style="background:#eef2ef;color:var(--brand-green);font-size:9.5px;">' + e.category + '</span>';
+              if (e.is_recurring) {
+                h += '      <span class="pill-badge" style="background:var(--accent-mint-badge);color:var(--accent-mint-text);font-size:9.5px;">🔄 ' + e.frequency + '</span>';
+              }
+              h += '      </div>';
+              h += '      <div style="font-size:14px;font-weight:800;color:var(--text-dark);margin-top:4px;">' + e.title + '</div>';
+              h += '      <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">Member: <b style="color:var(--brand-green);">' + e.holder + '</b></div>';
+              h += '      <div style="font-size:11px;color:var(--text-muted);margin-top:1px;">🏦 Paid from: <b style="color:var(--text-dark);">' + e.paid_from + '</b></div>';
+              h += '      <div style="font-size:11px;color:var(--accent-gold);margin-top:1px;">Due Date: <b>' + toDDMMYYYY(e.due_date) + '</b></div>';
+              h += '    </div>';
+              h += '    <div style="text-align:right;">';
+              h += '      <div style="font-size:16px;font-weight:800;color:var(--accent-coral-text);">' + fmt(e.amount) + '</div>';
+              h += '      <span class="pill-badge ' + (isPaid ? 'surplus' : '') + '" style="font-size:9.5px;margin-top:3px;' + (!isPaid ? 'background:#fee2e2;color:#dc2626;' : '') + '">' + (isPaid ? '✓ Paid' : 'Pending') + '</span>';
+              h += '    </div>';
+              h += '  </div>';
+
+              // Bill Number Section with Quick Update Button
+              h += '  <div style="display:flex;justify-content:space-between;align-items:center;background:#f8faf9;border-radius:10px;padding:8px 10px;margin:10px 0 8px;border:1px solid var(--card-border);font-size:11px;">';
+              h += '    <div><span style="color:var(--text-muted);">Bill / Ref No:</span> <b style="color:var(--text-dark);margin-left:4px;">' + e.bill_no + '</b></div>';
+              h += '    <button data-id="' + e.id + '" onclick="openUpdateBillModal(this.dataset.id)" class="act-pill-btn" style="font-size:10px;padding:2px 8px;">✏️ Update Bill No</button>';
+              h += '  </div>';
+
+              // Actions Row
+              h += '  <div style="display:flex;gap:6px;align-items:center;justify-content:flex-end;">';
+              h += '    <button data-id="' + e.id + '" onclick="toggleExpPaid(this.dataset.id)" class="btn-mark-recd ' + (isPaid ? 'done' : 'pending') + '" style="flex:1;padding:7px;border-radius:10px;font-size:11.5px;">';
+              h += '      ' + (isPaid ? '✓ Marked as Paid' : 'Mark as Paid') + '';
+              h += '    </button>';
+              h += '    <button data-id="' + e.id + '" onclick="openExpenseModal(this.dataset.id)" class="act-pill-btn" style="padding:6px 10px;">✏️</button>';
+              h += '    <button data-id="' + e.id + '" onclick="deleteExpense(this.dataset.id)" class="act-pill-btn danger" style="padding:6px 10px;">🗑️</button>';
+              h += '  </div>';
+              h += '</div>';
+            });
+            h += '</div>';
+          }
+        }
+
+        // ── SECTION B: INSURANCE POLICIES LIST ──
+        if (outflowSubTab === 'all' || outflowSubTab === 'insurance') {
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px 2px 2px;">';
+          h += '  <span style="font-size:11.5px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">Insurance Policies (' + fIns.length + ')</span>';
+          h += '  <button class="act-pill-btn" onclick="openInsuranceModal()" style="font-size:10.5px;">+ Add Policy</button>';
+          h += '</div>';
+
+          if (fIns.length === 0) {
+            h += '<div class="clean-card" style="text-align:center;padding:18px;color:var(--text-muted);font-size:12px;">No insurance policies listed. Tap + Add Policy above.</div>';
+          } else {
+            h += '<div style="display:flex;flex-direction:column;gap:10px;">';
+            fIns.forEach(p => {
+              const isPaid = !!paidMap[p.id];
+              h += '<div class="clean-card" style="padding:15px;border-left:4px solid ' + (isPaid ? 'var(--brand-green)' : 'var(--accent-coral-text)') + ';">';
+              h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+              h += '    <div>';
+              h += '      <span class="pill-badge" style="background:var(--accent-coral-badge);color:var(--accent-coral-text);font-size:10px;">' + p.insurer + '</span>';
+              h += '      <div style="font-size:14.5px;font-weight:800;color:var(--text-dark);margin-top:4px;">' + p.plan_name + '</div>';
+              h += '      <div style="font-size:11px;color:var(--text-muted);">' + p.holder + ' • Policy: ' + p.policy_no + '</div>';
+              h += '    </div>';
+              h += '    <div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:var(--accent-coral-text);">' + fmt(p.premium) + '</div><span style="font-size:10px;color:var(--text-muted);">' + p.frequency + '</span></div>';
+              h += '  </div>';
+
+              h += '  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;background:#f8faf9;border-radius:12px;padding:9px;margin:10px 0;font-size:11px;border:1px solid var(--card-border);">';
+              h += '    <div><span style="color:var(--text-muted);display:block;">PPT / Term</span><b style="color:var(--text-dark);">' + p.ppt_years + ' Yrs / ' + p.policy_term + ' Yrs</b></div>';
+              h += '    <div><span style="color:var(--text-muted);display:block;">Next Due Date</span><b style="color:var(--brand-green);">' + toDDMMYYYY(p.next_due) + '</b></div>';
+              h += '    <div><span style="color:var(--text-muted);display:block;">Sum Assured</span><b style="color:var(--text-dark);">' + fmtShort(p.sum_assured) + '</b></div>';
+              h += '  </div>';
+
+              h += '  <div style="display:flex;gap:6px;align-items:center;">';
+              h += '    <button data-id="' + p.id + '" onclick="togglePaid(this.dataset.id)" class="btn-mark-recd ' + (isPaid ? 'done' : 'pending') + '" style="flex:1;padding:8px;border-radius:10px;font-size:11.5px;">';
+              h += '      ' + (isPaid ? '✓ Marked as Paid for Current FY' : 'Mark as Paid') + '';
+              h += '    </button>';
+              h += '    <button data-id="' + p.id + '" onclick="openInsuranceModal(this.dataset.id)" class="act-pill-btn" style="padding:6px 10px;">✏️</button>';
+              h += '    <button data-id="' + p.id + '" onclick="deleteInsurance(this.dataset.id)" class="act-pill-btn danger" style="padding:6px 10px;">🗑️</button>';
+              h += '  </div>';
+              h += '</div>';
+            });
+            h += '</div>';
+          }
         }
 
         viewport.innerHTML = h;
@@ -1843,7 +2136,7 @@
           const b = yearBuckets[y];
           const val = b.totalFV + (b.sgbGrams * sgbMarketPrice);
           const bH = Math.max(8, Math.round((val / maxYearVal) * 72));
-          h += '  <div class="maturity-year-col" onclick="openYearMaturityModal(\'' + y + '\')" title="Tap to view ' + y + ' bonds (' + b.count + ' items, ' + fmt(val) + ')">';
+          h += '  <div class="maturity-year-col" data-year="' + y + '" onclick="openYearMaturityModal(this.dataset.year)" title="Tap to view ' + y + ' bonds (' + b.count + ' items, ' + fmt(val) + ')">';
           h += '    <div style="font-size:7px;font-weight:700;color:var(--text-light);">' + (val >= 10000000 ? (val/10000000).toFixed(1)+'Cr' : (val/100000).toFixed(0)+'L') + '</div>';
           h += '    <div style="width:100%;height:' + bH + 'px;border-radius:3px;background:var(--brand-green);box-shadow:0 2px 6px rgba(10,62,47,0.2);"></div>';
           h += '    <span style="font-size:8px;font-weight:800;color:var(--text-dark);">' + y + '</span>';
@@ -1875,8 +2168,8 @@
           h += '  </div>';
 
           h += '  <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--card-border);">';
-          h += '    <button class="act-pill-btn sell" onclick="openSellModal(\'' + hItem.id + '\')">Sell / Exit</button>';
-          h += '    <button class="act-pill-btn" onclick="openBondModal(\'' + hItem.id + '\')">Details</button>';
+          h += '    <button class="act-pill-btn sell" data-id="' + h.id + '" onclick="openSellModal(this.dataset.id)">Sell / Exit</button>';
+          h += '    <button class="act-pill-btn" data-id="' + h.id + '" onclick="openBondModal(this.dataset.id)">Details</button>';
           h += '  </div>';
           h += '</div>';
         });
@@ -1937,7 +2230,7 @@
         unit_fv: fv / qty
       };
       holdings.push(newH);
-      safeSet('fc_holdings_v6', holdings);
+      safeSet('fc_holdings_v7', holdings);
       closeModal();
       render();
     }
