@@ -1104,6 +1104,8 @@
     let expPaidMap = safeGet('fc_exp_paid_v7', {});
     let isPrivacyMode = safeGet('fc_privacy_v7', false);
     let outflowSubTab = 'all';
+    let outflowStatusFilter = 'all'; // 'all', 'pending', 'paid'
+    function setOutflowStatusFilter(st) { outflowStatusFilter = st; render(); }
     let expenseAnalyticsYear = 'all'; // 'all', '2026', '2025', etc.
     function setOutflowSubTab(tab) { outflowSubTab = tab; render(); } // 'all', 'insurance', 'expenses'
 
@@ -1992,13 +1994,30 @@
       const totFYInflow = fyTxs.reduce((sum, t) => sum + t.amount, 0);
       const recdFYInflow = fyTxs.filter(t => recdMap[t.id]).reduce((sum, t) => sum + t.amount, 0);
 
-      // 5. FY 2026-27 Outflow: Insurance + Expenses
-      const totFYInsurance = fIns.reduce((sum, ins) => sum + ins.premium, 0);
-      const totFYExpenses = fExp.reduce((sum, exp) => sum + exp.amount, 0);
-      const totFYOutflow = totFYInsurance + totFYExpenses;
+      // 5. FY 2026-27 Outflow: Insurance + Expenses (Estimated vs Actual)
+      // Estimated Outflow: All commitments scheduled for the FY
+      const estFYInsurance = fIns.reduce((sum, ins) => sum + ins.premium, 0);
+      const estFYExpenses = fExp.reduce((sum, exp) => sum + exp.amount, 0);
+      const estFYOutflow = estFYInsurance + estFYExpenses;
 
-      // 6. Net Cashflow (Surplus starting from Current FY)
-      const netCashflow = totFYInflow - totFYOutflow;
+      // Actual Outflow: Only items actually marked as paid
+      const actualFYInsurance = fIns.filter(ins => !!paidMap[ins.id]).reduce((sum, ins) => sum + ins.premium, 0);
+      const actualFYExpenses = fExp.filter(exp => !!expPaidMap[exp.id]).reduce((sum, exp) => sum + exp.amount, 0);
+      const actualFYOutflow = actualFYInsurance + actualFYExpenses;
+
+      // Remaining Due Outflow (Pending payment)
+      const dueFYOutflow = Math.max(0, estFYOutflow - actualFYOutflow);
+      const dueFYInsurance = Math.max(0, estFYInsurance - actualFYInsurance);
+      const dueFYExpenses = Math.max(0, estFYExpenses - actualFYExpenses);
+
+      const paidInsCount = fIns.filter(ins => !!paidMap[ins.id]).length;
+      const pendingInsCount = fIns.length - paidInsCount;
+      const paidExpCount = fExp.filter(exp => !!expPaidMap[exp.id]).length;
+      const pendingExpCount = fExp.length - paidExpCount;
+
+      // 6. Net Cashflow: Realized (Recd Inflow - Actual Paid Outflow) & Projected
+      const realizedNetCashflow = recdFYInflow - actualFYOutflow;
+      const projectedNetCashflow = totFYInflow - estFYOutflow;
 
       // 7. Monthly aggregates
       const monthlyInflows = {};
@@ -2051,32 +2070,45 @@
       if (currentTab === 'dashboard') {
         let h = '';
 
-        // 2-Column Summary Cards
+        // 2-Column Summary Cards (Clickable to Inflow & Outflow Data)
         h += '<div class="stat-row-2">';
-        h += '  <div class="stat-box" onclick="switchTab(\'inflow\')">';
-        h += '    <div class="icon-circle inflow"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7m0 0H7m10 0v10"/></svg></div>';
+        h += '  <div class="stat-box" onclick="switchTab(\'inflow\')" style="cursor:pointer;" title="Tap to view Inflow Schedule">';
+        h += '    <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+        h += '      <div class="icon-circle inflow"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7m0 0H7m10 0v10"/></svg></div>';
+        h += '      <span style="font-size:9.5px;font-weight:700;color:var(--brand-green);background:#ecfdf5;padding:2px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:2px;">View Data ›</span>';
+        h += '    </div>';
         h += '    <div class="stat-lbl">Total Inflow</div>';
         h += '    <div class="stat-amt">' + fmt(totFYInflow) + '</div>';
-        h += '    <div class="stat-sub">Interest Income</div>';
+        h += '    <div class="stat-sub" style="margin-top:2px;">Recd: <b style="color:var(--brand-green);">' + fmt(recdFYInflow) + '</b> • ' + (fyTxs.length - fyTxs.filter(t => recdMap[t.id]).length) + ' due</div>';
         h += '  </div>';
 
-        h += '  <div class="stat-box" onclick="switchTab(\'outflow\')">';
-        h += '    <div class="icon-circle outflow"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>';
+        h += '  <div class="stat-box" onclick="switchTab(\'outflow\')" style="cursor:pointer;" title="Tap to view Outflow Schedule">';
+        h += '    <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+        h += '      <div class="icon-circle outflow"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>';
+        h += '      <span style="font-size:9.5px;font-weight:700;color:var(--accent-coral-text);background:var(--accent-coral-bg);padding:2px 6px;border-radius:6px;display:inline-flex;align-items:center;gap:2px;">Est & Actual ›</span>';
+        h += '    </div>';
         h += '    <div class="stat-lbl">Total Outflow</div>';
-        h += '    <div class="stat-amt">' + fmt(totFYOutflow) + '</div>';
-        h += '    <div class="stat-sub">Insurance Premiums</div>';
+        h += '    <div style="display:flex;align-items:baseline;gap:5px;">';
+        h += '      <div class="stat-amt" style="color:var(--brand-green);font-size:16px;">' + fmt(actualFYOutflow) + '</div>';
+        h += '      <span style="font-size:9px;font-weight:800;color:var(--brand-green);background:#ecfdf5;padding:1px 4px;border-radius:4px;text-transform:uppercase;">Paid</span>';
+        h += '    </div>';
+        h += '    <div class="stat-sub" style="margin-top:2px;">Est: <b style="color:var(--text-dark);">' + fmt(estFYOutflow) + '</b> • <span style="color:#d97706;font-weight:700;">' + fmt(dueFYOutflow) + ' due</span></div>';
         h += '  </div>';
         h += '</div>';
 
-        // Net Cashflow Wide Card
+        // Net Cashflow Wide Card (Realized vs Projected)
         h += '<div class="net-cashflow-card">';
         h += '  <div class="net-left">';
         h += '    <div class="net-icon-box"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg></div>';
-        h += '    <div><div class="stat-lbl">Net Cashflow</div><div class="net-amt">' + fmt(netCashflow) + '</div></div>';
+        h += '    <div>';
+        h += '      <div class="stat-lbl">Net Cashflow (Realized)</div>';
+        h += '      <div class="net-amt">' + fmt(realizedNetCashflow) + '</div>';
+        h += '      <div style="font-size:10px;color:var(--text-muted);margin-top:1px;">Recd Inflow − Actual Paid • Est Net: <b style="color:var(--text-dark);">' + fmt(projectedNetCashflow) + '</b></div>';
+        h += '    </div>';
         h += '  </div>';
         h += '  <div style="text-align:right;">';
-        h += '    <span class="pill-badge surplus">↑ FY Surplus</span>';
-        h += '    <div style="font-size:10.5px;color:var(--text-light);margin-top:3px;">Inflow − Outflow</div>';
+        h += '    <span class="pill-badge ' + (realizedNetCashflow >= 0 ? 'surplus' : 'deficit') + '">' + (realizedNetCashflow >= 0 ? '↑ Realized Surplus' : '↓ Realized Deficit') + '</span>';
+        h += '    <div style="font-size:10px;color:var(--text-light);margin-top:3px;">Inflow − Outflow</div>';
         h += '  </div>';
         h += '</div>';
 
@@ -2248,7 +2280,7 @@
               h += '    <div class="coupon-action-row">';
               h += '      <button onclick="toggleRecd(\'' + t.id + '\')" class="btn-mark-recd ' + (isDone ? 'done' : 'pending') + '">' + (isDone ? '✓ Recd' : 'Mark Recd') + '</button>';
               if (parentHId) {
-                h += '    <button data-id="' + hItem.id + '" onclick="openBondModal(this.dataset.id)" class="btn-dots" title="Bond Summary"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button>';
+                h += '    <button data-id="' + parentHId + '" onclick="openBondModal(this.dataset.id)" class="btn-dots" title="Bond Summary"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button>';
               }
               h += '    </div>';
               h += '  </div>';
@@ -2277,7 +2309,7 @@
             h += '    <div class="coupon-action-row">';
             h += '      <button onclick="toggleRecd(\'' + t.id + '\')" class="btn-mark-recd ' + (isDone ? 'done' : 'pending') + '">' + (isDone ? '✓ Recd' : 'Mark Recd') + '</button>';
             if (parentHId) {
-              h += '    <button data-id="' + hItem.id + '" onclick="openBondModal(this.dataset.id)" class="btn-dots" title="Bond Summary"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button>';
+              h += '    <button data-id="' + parentHId + '" onclick="openBondModal(this.dataset.id)" class="btn-dots" title="Bond Summary"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="6" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="18" r="2"/></svg></button>';
             }
             h += '    </div>';
             h += '  </div>';
@@ -2327,30 +2359,55 @@
         h += '  </div>';
         h += '</div>';
 
-        // Outflow Summary Banner Card
-        h += '<div class="month-banner-card">';
-        h += '  <div class="month-banner-left">';
-        h += '    <div class="icon-circle outflow" style="margin-bottom:0;width:42px;height:42px;"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>';
-        h += '    <div>';
-        h += '      <div class="stat-lbl">Total Annual Outflow</div>';
-        h += '      <div class="stat-amt" style="color:var(--accent-coral-text);margin:2px 0 0;">' + fmt(totFYOutflow) + '</div>';
-        h += '      <div style="font-size:10px;color:var(--text-muted);margin-top:2px;">Ins: ' + fmt(totFYInsurance) + ' • Exp: ' + fmt(totFYExpenses) + '</div>';
+        // Outflow Summary Banner Card (Estimated vs Actual Dual Metric)
+        h += '<div class="month-banner-card" style="flex-direction:column;align-items:stretch;gap:10px;">';
+        h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+        h += '    <div style="display:flex;align-items:center;gap:10px;">';
+        h += '      <div class="icon-circle outflow" style="margin-bottom:0;width:38px;height:38px;"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg></div>';
+        h += '      <div><div class="stat-lbl">Annual Outflow & Commitments</div><div style="font-size:11px;color:var(--text-muted);">FY 2026-27 Overview</div></div>';
+        h += '    </div>';
+        h += '    <div style="display:flex;gap:4px;">';
+        h += '      <button onclick="setOutflowSubTab(\'analytics\')" class="act-pill-btn" style="background:#f0fdf4;color:var(--brand-green);border:1px solid #bbf7d0;padding:4px 8px;font-size:10px;">📊 Stats</button>';
+        h += '      <button onclick="openExpenseModal()" class="act-pill-btn" style="background:var(--brand-green);color:#fff;border:none;padding:4px 8px;font-size:10px;">+ Expense</button>';
+        h += '      <button onclick="openInsuranceModal()" class="act-pill-btn" style="padding:4px 8px;font-size:10px;">+ Policy</button>';
         h += '    </div>';
         h += '  </div>';
-        h += '  <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end;">';
-        h += '    <button onclick="setOutflowSubTab(\'analytics\')" class="act-pill-btn" style="background:#f0fdf4;color:var(--brand-green);border:1px solid #bbf7d0;padding:4px 8px;font-size:10.5px;">📊 Category Stats</button>';
-        h += '    <button onclick="openExpenseModal()" class="act-pill-btn" style="background:var(--brand-green);color:#fff;border:none;padding:5px 10px;">+ Expense</button>';
-        h += '    <button onclick="openInsuranceModal()" class="act-pill-btn" style="padding:4px 8px;font-size:10px;">+ Policy</button>';
+
+        // Dual Metric Highlight: Actual Paid vs Estimated Total
+        h += '  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(255,255,255,0.85);border-radius:12px;padding:10px 12px;border:1px solid var(--card-border);">';
+        h += '    <div>';
+        h += '      <div style="font-size:9.5px;font-weight:800;color:var(--brand-green);text-transform:uppercase;letter-spacing:0.04em;">✓ Actual Paid</div>';
+        h += '      <div class="stat-amt" style="font-size:17px;color:var(--brand-green);margin:2px 0 1px;">' + fmt(actualFYOutflow) + '</div>';
+        h += '      <div style="font-size:10px;color:var(--text-muted);">' + (paidInsCount + paidExpCount) + ' items paid</div>';
+        h += '    </div>';
+        h += '    <div style="border-left:1px solid var(--card-border);padding-left:10px;">';
+        h += '      <div style="font-size:9.5px;font-weight:800;color:var(--accent-coral-text);text-transform:uppercase;letter-spacing:0.04em;">📋 Estimated Total</div>';
+        h += '      <div class="stat-amt" style="font-size:17px;color:var(--accent-coral-text);margin:2px 0 1px;">' + fmt(estFYOutflow) + '</div>';
+        h += '      <div style="font-size:10px;color:#d97706;font-weight:700;">' + fmt(dueFYOutflow) + ' due</div>';
+        h += '    </div>';
+        h += '  </div>';
+        h += '  <div style="font-size:10px;color:var(--text-muted);display:flex;justify-content:space-between;">';
+        h += '    <span>Insurance: Paid ' + fmt(actualFYInsurance) + ' of ' + fmt(estFYInsurance) + '</span>';
+        h += '    <span>Expenses: Paid ' + fmt(actualFYExpenses) + ' of ' + fmt(estFYExpenses) + '</span>';
         h += '  </div>';
         h += '</div>';
 
-        // Segmented Sub-Tab Control: [ All | Insurance | Expenses ]
+        // Segmented Sub-Tab Control: [ All | Insurance | Expenses | Stats ]
         h += '<div class="segmented-control" style="margin-top:10px;">';
         h += '  <button class="seg-btn ' + (outflowSubTab === 'all' ? 'active' : '') + '" onclick="setOutflowSubTab(\'all\')">All (' + (fIns.length + fExp.length) + ')</button>';
         h += '  <button class="seg-btn ' + (outflowSubTab === 'insurance' ? 'active' : '') + '" onclick="setOutflowSubTab(\'insurance\')">Insurance (' + fIns.length + ')</button>';
         h += '  <button class="seg-btn ' + (outflowSubTab === 'expenses' ? 'active' : '') + '" onclick="setOutflowSubTab(\'expenses\')">Expenses (' + fExp.length + ')</button>';
         h += '  <button class="seg-btn ' + (outflowSubTab === 'analytics' ? 'active' : '') + '" onclick="setOutflowSubTab(\'analytics\')">Stats 📊</button>';
         h += '</div>';
+
+        // Status Filter Pills: [ All | Due | Paid ]
+        if (outflowSubTab !== 'analytics') {
+          h += '<div style="display:flex;gap:6px;align-items:center;margin-top:8px;">';
+          h += '  <button class="act-pill-btn ' + (outflowStatusFilter === 'all' ? 'active' : '') + '" style="' + (outflowStatusFilter === 'all' ? 'background:var(--brand-green);color:#fff;font-weight:700;' : 'background:#fff;') + '" onclick="setOutflowStatusFilter(\'all\')">All (' + (fIns.length + fExp.length) + ')</button>';
+          h += '  <button class="act-pill-btn ' + (outflowStatusFilter === 'pending' ? 'active' : '') + '" style="' + (outflowStatusFilter === 'pending' ? 'background:#d97706;color:#fff;font-weight:700;border-color:#fde68a;' : 'background:#fff;color:#d97706;') + '" onclick="setOutflowStatusFilter(\'pending\')">⏳ Due (' + (pendingInsCount + pendingExpCount) + ')</button>';
+          h += '  <button class="act-pill-btn ' + (outflowStatusFilter === 'paid' ? 'active' : '') + '" style="' + (outflowStatusFilter === 'paid' ? 'background:var(--brand-green);color:#fff;font-weight:700;' : 'background:#fff;color:var(--brand-green);') + '" onclick="setOutflowStatusFilter(\'paid\')">✓ Paid (' + (paidInsCount + paidExpCount) + ')</button>';
+          h += '</div>';
+        }
 
         // ── SECTION A: EXPENSES LIST ──
         if (outflowSubTab === 'all' || outflowSubTab === 'expenses') {
@@ -2359,11 +2416,12 @@
           h += '  <button class="act-pill-btn" onclick="openExpenseModal()" style="font-size:10.5px;">+ Add Expense</button>';
           h += '</div>';
 
-          if (fExp.length === 0) {
-            h += '<div class="clean-card" style="text-align:center;padding:18px;color:var(--text-muted);font-size:12px;">No expenses listed for this member. Tap + Add Expense above.</div>';
+          const displayExp = fExp.filter(e => outflowStatusFilter === 'all' ? true : (outflowStatusFilter === 'paid' ? !!expPaidMap[e.id] : !expPaidMap[e.id]));
+          if (displayExp.length === 0) {
+            h += '<div class="clean-card" style="text-align:center;padding:18px;color:var(--text-muted);font-size:12px;">No ' + (outflowStatusFilter === 'pending' ? 'pending' : (outflowStatusFilter === 'paid' ? 'paid' : '')) + ' expenses listed. Tap + Add Expense above.</div>';
           } else {
             h += '<div style="display:flex;flex-direction:column;gap:10px;">';
-            fExp.forEach(e => {
+            displayExp.forEach(e => {
               const isPaid = !!expPaidMap[e.id];
               h += '<div class="clean-card" style="padding:14px;border-left:4px solid ' + (isPaid ? 'var(--brand-green)' : '#f87171') + ';">';
               h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
@@ -2412,11 +2470,12 @@
           h += '  <button class="act-pill-btn" onclick="openInsuranceModal()" style="font-size:10.5px;">+ Add Policy</button>';
           h += '</div>';
 
-          if (fIns.length === 0) {
-            h += '<div class="clean-card" style="text-align:center;padding:18px;color:var(--text-muted);font-size:12px;">No insurance policies listed. Tap + Add Policy above.</div>';
+          const displayIns = fIns.filter(p => outflowStatusFilter === 'all' ? true : (outflowStatusFilter === 'paid' ? !!paidMap[p.id] : !paidMap[p.id]));
+          if (displayIns.length === 0) {
+            h += '<div class="clean-card" style="text-align:center;padding:18px;color:var(--text-muted);font-size:12px;">No ' + (outflowStatusFilter === 'pending' ? 'pending' : (outflowStatusFilter === 'paid' ? 'paid' : '')) + ' policies found. Tap + Add Policy above.</div>';
           } else {
             h += '<div style="display:flex;flex-direction:column;gap:10px;">';
-            fIns.forEach(p => {
+            displayIns.forEach(p => {
               const isPaid = !!paidMap[p.id];
               h += '<div class="clean-card" style="padding:15px;border-left:4px solid ' + (isPaid ? 'var(--brand-green)' : 'var(--accent-coral-text)') + ';">';
               h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
