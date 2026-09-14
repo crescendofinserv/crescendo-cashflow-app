@@ -635,6 +635,93 @@
       background: #fffbeb;
     }
 
+    
+    /* ── SGB Gold Live Valuation Card Styling ── */
+    .sgb-icon-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(180, 83, 9, 0.12);
+      flex-shrink: 0;
+    }
+    .sgb-price-badge {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #92400e;
+      background: #fef3c7;
+      border: 1px solid #fde68a;
+      padding: 4px 10px;
+      border-radius: 20px;
+      box-shadow: 0 1px 4px rgba(180, 83, 9, 0.08);
+      white-space: nowrap;
+    }
+    .custom-gold-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(to right, #d97706 0%, #f59e0b var(--slider-pct, 31%), #e2e8f0 var(--slider-pct, 31%), #e2e8f0 100%);
+      outline: none;
+      cursor: pointer;
+      margin: 0;
+      padding: 0;
+      touch-action: pan-x;
+    }
+    .custom-gold-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3.5px solid #d97706;
+      box-shadow: 0 2px 10px rgba(217, 119, 6, 0.45);
+      cursor: grab;
+      transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.1s ease;
+    }
+    .custom-gold-slider::-webkit-slider-thumb:active {
+      cursor: grabbing;
+      transform: scale(1.22);
+      box-shadow: 0 4px 16px rgba(217, 119, 6, 0.6);
+    }
+    .custom-gold-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3.5px solid #d97706;
+      box-shadow: 0 2px 10px rgba(217, 119, 6, 0.45);
+      cursor: grab;
+    }
+    .sgb-preset-btn {
+      flex: 1;
+      padding: 4px 2px;
+      border-radius: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      border: 1px solid #fde68a;
+      background: #ffffff;
+      color: #92400e;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s ease;
+    }
+    .sgb-preset-btn:hover {
+      background: #fef3c7;
+    }
+    .sgb-preset-btn.active {
+      background: #d97706;
+      color: #ffffff;
+      border-color: #b45309;
+      box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+    }
+
     /* Bottom Navigation Bar */
     .bottom-tab-bar {
       height: 64px;
@@ -945,7 +1032,7 @@
     let currentTab = 'dashboard';
     let inflowMode = 'month'; // 'month' or 'fy'
     let activeMonthIdx = 0; // 0 = April 2026, 1 = May 2026, ... 11 = March 2027
-    let sgbMarketPrice = 9800; // Rs per gram
+    let sgbMarketPrice = safeGet('fc_sgb_price', 9800);
     let trendMode = 'inflow'; // 'inflow' or 'outflow'
 
     // Explicitly mentioning "Pramesh Shah HUF"
@@ -1811,19 +1898,63 @@
         h += '  </div>';
         h += '</div>';
 
-        // SGB Gold Valuation Card
+                // ── SGB GOLD LIVE VALUATION CARD (PREMIUM FINTECH DESIGN) ──
         if (totSgbGrams > 0) {
-          h += '<div class="clean-card">';
-          h += '  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-          h += '    <div style="display:flex;align-items:center;gap:6px;"><span style="font-size:16px;">🥇</span><b style="font-size:13px;color:var(--text-dark);">SGB Gold Valuation</b></div>';
-          h += '    <span style="font-size:12px;font-weight:800;color:var(--accent-gold);background:var(--accent-gold-bg);padding:2px 8px;border-radius:8px;">₹ ' + sgbMarketPrice.toLocaleString('en-IN') + ' / g</span>';
+          const sliderMin = 6000;
+          const sliderMax = 18000;
+          const sliderPct = Math.min(100, Math.max(0, ((sgbMarketPrice - sliderMin) / (sliderMax - sliderMin)) * 100));
+          const dispPrice = isPrivacyMode ? '₹ ••••• / g' : '₹ ' + sgbMarketPrice.toLocaleString('en-IN') + ' / g';
+          const dispTotVal = isPrivacyMode ? '₹ ••••••••' : '₹ ' + totSgbMarketVal.toLocaleString('en-IN');
+          const dispLakhs = isPrivacyMode ? '' : ' (' + (totSgbMarketVal / 100000).toFixed(2) + ' Lakhs)';
+
+          h += '<div class="clean-card" style="padding:16px;border:1px solid #fde68a;background:linear-gradient(180deg, #ffffff 0%, #fffdfa 100%);box-shadow:0 4px 16px rgba(180,83,9,0.06);">';
+          h += '  <div style="display:flex;justify-content:space-between;align-items:center;">';
+          h += '    <div style="display:flex;align-items:center;gap:10px;">';
+          h += '      <div class="sgb-icon-badge">';
+          h += '        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">';
+          h += '          <polygon points="6 14 10 7 18 7 14 14 6 14" fill="#fef08a" stroke="#b45309" stroke-width="1.8"/>';
+          h += '          <polygon points="14 14 18 7 21 11 17 18 14 14" fill="#f59e0b" stroke="#b45309" stroke-width="1.8"/>';
+          h += '          <polygon points="6 14 14 14 11 18 3 18 6 14" fill="#fbbf24" stroke="#b45309" stroke-width="1.8"/>';
+          h += '        </svg>';
+          h += '      </div>';
+          h += '      <div>';
+          h += '        <div style="font-size:13.5px;font-weight:800;color:var(--text-dark);letter-spacing:-0.01em;">SGB Gold Valuation</div>';
+          h += '        <div style="font-size:11px;color:var(--text-muted);margin-top:1px;font-weight:600;">Holding: <b style="color:#b45309;">' + totSgbGrams + ' Grams</b></div>';
+          h += '      </div>';
+          h += '    </div>';
+          h += '    <div id="sgbPriceBadge" class="sgb-price-badge">' + dispPrice + '</div>';
           h += '  </div>';
-          h += '  <input type="range" min="6500" max="18000" step="250" value="' + sgbMarketPrice + '" oninput="sgbMarketPrice=parseInt(this.value);render();" style="width:100%;accent-color:var(--accent-gold);">';
-          h += '  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-weight:600;margin-top:6px;">';
-          h += '    <span>₹ 6,500</span>';
-          h += '    <span style="color:var(--brand-green);font-weight:800;">' + totSgbGrams + 'g Total Gold = ' + fmtShort(totSgbMarketVal) + '</span>';
+
+          // Live Metric Highlight Box
+          h += '  <div style="display:flex;justify-content:space-between;align-items:center;background:#fffbeb;border:1px solid #fef3c7;border-radius:12px;padding:10px 12px;margin:12px 0 10px;">';
+          h += '    <span style="font-size:11.5px;font-weight:700;color:#92400e;">Current Gold Value</span>';
+          h += '    <div style="text-align:right;">';
+          h += '      <span id="sgbTotalValText" style="font-size:14.5px;font-weight:800;color:#b45309;">' + dispTotVal + '</span>';
+          h += '      <span id="sgbLakhsText" style="font-size:11px;font-weight:700;color:#a16207;">' + dispLakhs + '</span>';
+          h += '    </div>';
+          h += '  </div>';
+
+          // Buttery Smooth Interactive Range Slider
+          h += '  <div style="position:relative;margin:14px 0 6px;padding:0 2px;">';
+          h += '    <input type="range" id="sgbSliderInput" min="' + sliderMin + '" max="' + sliderMax + '" step="50" value="' + sgbMarketPrice + '" class="custom-gold-slider" style="--slider-pct:' + sliderPct.toFixed(1) + '%;" oninput="onSgbSliderInput(this.value)" onchange="onSgbSliderChange(this.value)">';
+          h += '  </div>';
+
+          // Min / Max Limits Row
+          h += '  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-weight:700;margin-bottom:10px;">';
+          h += '    <span>₹ 6,000</span>';
+          h += '    <span style="color:#b45309;font-weight:700;">Drag to test gold price scenarios</span>';
           h += '    <span>₹ 18,000</span>';
           h += '  </div>';
+
+          // Quick Preset Pills
+          h += '  <div style="display:flex;gap:6px;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px dashed #fde68a;">';
+          [8000, 9800, 11500, 13000, 15000].forEach(preset => {
+            const isCurr = sgbMarketPrice === preset;
+            const label = preset === 9800 ? '9.8k (Mkt)' : (preset / 1000) + 'k';
+            h += '<button type="button" class="sgb-preset-btn ' + (isCurr ? 'active' : '') + '" onclick="setSgbPreset(' + preset + ')">₹ ' + label + '</button>';
+          });
+          h += '  </div>';
+
           h += '</div>';
         }
 
@@ -2232,6 +2363,47 @@
       holdings.push(newH);
       safeSet('fc_holdings_v7', holdings);
       closeModal();
+      render();
+    }
+
+    
+    // ── Seamless SGB Slider Handlers (Zero-Lag 60fps Live Update) ──
+    function onSgbSliderInput(val) {
+      sgbMarketPrice = parseInt(val) || 9800;
+      const sliderMin = 6000;
+      const sliderMax = 18000;
+      const sliderPct = Math.min(100, Math.max(0, ((sgbMarketPrice - sliderMin) / (sliderMax - sliderMin)) * 100));
+      
+      const slider = document.getElementById('sgbSliderInput');
+      if (slider) {
+        slider.style.setProperty('--slider-pct', sliderPct.toFixed(1) + '%');
+      }
+
+      const badge = document.getElementById('sgbPriceBadge');
+      if (badge) {
+        badge.textContent = isPrivacyMode ? '₹ ••••• / g' : '₹ ' + sgbMarketPrice.toLocaleString('en-IN') + ' / g';
+      }
+
+      const totValEl = document.getElementById('sgbTotalValText');
+      const lakhsEl = document.getElementById('sgbLakhsText');
+      const totVal = 297 * sgbMarketPrice;
+      if (totValEl) {
+        totValEl.textContent = isPrivacyMode ? '₹ ••••••••' : '₹ ' + totVal.toLocaleString('en-IN');
+      }
+      if (lakhsEl) {
+        lakhsEl.textContent = isPrivacyMode ? '' : ' (' + (totVal / 100000).toFixed(2) + ' Lakhs)';
+      }
+    }
+
+    function onSgbSliderChange(val) {
+      sgbMarketPrice = parseInt(val) || 9800;
+      safeSet('fc_sgb_price', sgbMarketPrice);
+      render();
+    }
+
+    function setSgbPreset(val) {
+      sgbMarketPrice = val;
+      safeSet('fc_sgb_price', sgbMarketPrice);
       render();
     }
 
