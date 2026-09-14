@@ -181,7 +181,7 @@
     }
     .main-viewport::-webkit-scrollbar { display: none; }
 
-    /* White Cards */
+    /* Clean White Cards */
     .clean-card {
       background: var(--card-bg);
       border-radius: 18px;
@@ -423,7 +423,7 @@
       margin-top: 1px;
     }
 
-    /* Subpage Header (Inflow / Outflow) */
+    /* Subpage Header */
     .subpage-header {
       display: flex;
       align-items: center;
@@ -491,6 +491,7 @@
       justify-content: center;
       cursor: pointer;
       color: var(--text-dark);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
     .nav-arrow-btn:active {
       background: #f1f5f9;
@@ -585,6 +586,55 @@
       color: var(--text-dark);
     }
 
+    /* Clickable Maturity Bars */
+    .maturity-year-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      padding: 2px 1px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .maturity-year-col:hover {
+      background: #f1f5f9;
+    }
+    .maturity-year-col:active {
+      transform: scale(0.96);
+    }
+
+    /* Small Action Pill Buttons (Edit, Delete, Sell) */
+    .act-pill-btn {
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 10.5px;
+      font-weight: 700;
+      border: 1px solid var(--card-border);
+      background: #ffffff;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .act-pill-btn:hover {
+      background: #f8fafc;
+      color: var(--text-dark);
+    }
+    .act-pill-btn.danger {
+      color: var(--accent-coral-text);
+      border-color: var(--accent-coral-badge);
+      background: var(--accent-coral-bg);
+    }
+    .act-pill-btn.sell {
+      color: #b45309;
+      border-color: #fef3c7;
+      background: #fffbeb;
+    }
+
     /* Bottom Navigation Bar */
     .bottom-tab-bar {
       height: 64px;
@@ -621,49 +671,6 @@
       transform: scale(1.1);
     }
 
-    /* Modal / Drawer */
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(15, 23, 42, 0.6);
-      backdrop-filter: blur(4px);
-      z-index: 100;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-    }
-    .modal-sheet {
-      background: #ffffff;
-      border-radius: 24px 24px 0 0;
-      width: 100%;
-      max-width: 460px;
-      max-height: 88vh;
-      overflow-y: auto;
-      padding: 20px;
-      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
-      animation: slideUp 0.25s ease-out;
-    }
-    @keyframes slideUp {
-      from { transform: translateY(100%); }
-      to { transform: translateY(0); }
-    }
-    .modal-drag-bar {
-      width: 36px;
-      height: 4px;
-      background: #e2e8f0;
-      border-radius: 9999px;
-      margin: 0 auto 14px;
-    }
-    .modal-hdr {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-    
     /* PIN Security Modal Styles */
     .pin-dots-row {
       display: flex;
@@ -732,6 +739,48 @@
       animation: shake 0.35s ease-in-out;
     }
 
+    /* Modal / Drawer */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .modal-sheet {
+      background: #ffffff;
+      border-radius: 24px 24px 0 0;
+      width: 100%;
+      max-width: 460px;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 20px;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+      animation: slideUp 0.25s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-drag-bar {
+      width: 36px;
+      height: 4px;
+      background: #e2e8f0;
+      border-radius: 9999px;
+      margin: 0 auto 14px;
+    }
+    .modal-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
     .modal-close-btn {
       width: 30px;
       height: 30px;
@@ -781,7 +830,7 @@
       </div>
 
       <!-- Financial Year Row -->
-      <div class="fy-selector-row" onclick="alert('Viewing Active Financial Year: 2026 – 2027 (Starting 01-04-2026)')">
+      <div class="fy-selector-row" onclick="alert('Viewing Active Financial Year: 2026 – 2027 (01-04-2026 to 31-03-2027)')">
         <span>Financial Year <b>2026 – 2027</b></span>
         <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
       </div>
@@ -852,19 +901,79 @@
       }
     }
 
-    let holdings = safeGet('fc_holdings_v5', SEED_HOLDINGS);
-    let transactions = safeGet('fc_tx_v5', SEED_TX);
-    let insurance = safeGet('fc_ins_v5', SEED_INS);
-    let recdMap = safeGet('fc_recd_v5', {});
-    let paidMap = safeGet('fc_paid_v5', {});
-    let isPrivacyMode = safeGet('fc_privacy_v5', false);
+    let holdings = safeGet('fc_holdings_v6', SEED_HOLDINGS);
+    let transactions = safeGet('fc_tx_v6', SEED_TX);
+    let insurance = safeGet('fc_ins_v6', SEED_INS);
+    let recdMap = safeGet('fc_recd_v6', {});
+    let paidMap = safeGet('fc_paid_v6', {});
+    let isPrivacyMode = safeGet('fc_privacy_v6', false);
+
+    if (!holdings || !holdings.length) holdings = SEED_HOLDINGS;
+    if (!transactions || !transactions.length) transactions = SEED_TX;
+    if (!insurance || !insurance.length) insurance = SEED_INS;
+
+    function resetAllData() {
+      try {
+        localStorage.removeItem('fc_holdings_v6');
+        localStorage.removeItem('fc_tx_v6');
+        localStorage.removeItem('fc_ins_v6');
+        localStorage.removeItem('fc_recd_v6');
+        localStorage.removeItem('fc_paid_v6');
+        localStorage.removeItem('fc_privacy_v6');
+      } catch (e) {}
+      holdings = JSON.parse(JSON.stringify(SEED_HOLDINGS));
+      transactions = JSON.parse(JSON.stringify(SEED_TX));
+      insurance = JSON.parse(JSON.stringify(SEED_INS));
+      recdMap = {};
+      paidMap = {};
+      isPrivacyMode = false;
+      render();
+    }
+
+    // ── Navigation & State ──
+    let currentHolder = 'All';
+    let currentTab = 'dashboard';
+    let inflowMode = 'month'; // 'month' or 'fy'
+    let activeMonthIdx = 0; // 0 = April 2026, 1 = May 2026, ... 11 = March 2027
+    let sgbMarketPrice = 9800; // Rs per gram
+    let trendMode = 'inflow'; // 'inflow' or 'outflow'
+
+    // Explicitly mentioning "Pramesh Shah HUF"
+    const MEMBERS = [
+      { id: 'All', name: 'All Family' },
+      { id: 'Pramesh R Shah', name: 'Pramesh' },
+      { id: 'UNNATI P SHAH', name: 'Unnati' },
+      { id: 'SAAHIL P SHAH', name: 'Saahil' },
+      { id: 'Krisha Saahil Shah', name: 'Krisha' },
+      { id: 'Pramesh Shah HUF', name: 'Pramesh Shah HUF' }
+    ];
+
+    const FY_MONTHS = [
+      { key: '04', name: 'April 2026', short: 'Apr' },
+      { key: '05', name: 'May 2026', short: 'May' },
+      { key: '06', name: 'June 2026', short: 'Jun' },
+      { key: '07', name: 'July 2026', short: 'Jul' },
+      { key: '08', name: 'August 2026', short: 'Aug' },
+      { key: '09', name: 'September 2026', short: 'Sep' },
+      { key: '10', name: 'October 2026', short: 'Oct' },
+      { key: '11', name: 'November 2026', short: 'Nov' },
+      { key: '12', name: 'December 2026', short: 'Dec' },
+      { key: '01', name: 'January 2027', short: 'Jan' },
+      { key: '02', name: 'February 2027', short: 'Feb' },
+      { key: '03', name: 'March 2027', short: 'Mar' }
+    ];
+
+    const FY_START = '2026-04-01';
+    const FY_END   = '2027-03-31';
+
+    // ── Privacy Mode & PIN Logic (PIN: 636590) ──
     const PRIVACY_PIN = '636590';
     let enteredPin = '';
 
     function handlePrivacyClick() {
       if (!isPrivacyMode) {
         isPrivacyMode = true;
-        safeSet('fc_privacy_v5', true);
+        safeSet('fc_privacy_v6', true);
         render();
       } else {
         openPinModal();
@@ -923,7 +1032,7 @@
         if (enteredPin.length === 6) {
           if (enteredPin === PRIVACY_PIN) {
             isPrivacyMode = false;
-            safeSet('fc_privacy_v5', false);
+            safeSet('fc_privacy_v6', false);
             setTimeout(() => {
               closeModal();
               render();
@@ -938,62 +1047,7 @@
       }
     }
 
-    if (!holdings || !holdings.length) holdings = SEED_HOLDINGS;
-    if (!transactions || !transactions.length) transactions = SEED_TX;
-    if (!insurance || !insurance.length) insurance = SEED_INS;
-
-    function resetAllData() {
-      try {
-        localStorage.removeItem('fc_holdings_v5');
-        localStorage.removeItem('fc_tx_v5');
-        localStorage.removeItem('fc_ins_v5');
-        localStorage.removeItem('fc_recd_v5');
-        localStorage.removeItem('fc_paid_v5');
-      } catch (e) {}
-      holdings = JSON.parse(JSON.stringify(SEED_HOLDINGS));
-      transactions = JSON.parse(JSON.stringify(SEED_TX));
-      insurance = JSON.parse(JSON.stringify(SEED_INS));
-      recdMap = {};
-      paidMap = {};
-      render();
-    }
-
-    // ── Navigation & State ──
-    let currentHolder = 'All';
-    let currentTab = 'dashboard';
-    let inflowMode = 'month'; // 'month' or 'fy'
-    let activeMonthIdx = 0; // 0 = April 2026, 1 = May 2026, ... 11 = March 2027
-    let sgbMarketPrice = 9800; // Rs per gram
-    let trendMode = 'inflow'; // 'inflow' or 'outflow'
-
-    const MEMBERS = [
-      { id: 'All', name: 'All Family' },
-      { id: 'Pramesh R Shah', name: 'Pramesh' },
-      { id: 'UNNATI P SHAH', name: 'Unnati' },
-      { id: 'SAAHIL P SHAH', name: 'Saahil' },
-      { id: 'Krisha Saahil Shah', name: 'Krisha' },
-      { id: 'Pramesh Shah HUF', name: 'HUF' }
-    ];
-
-    const FY_MONTHS = [
-      { key: '04', name: 'April 2026', short: 'Apr' },
-      { key: '05', name: 'May 2026', short: 'May' },
-      { key: '06', name: 'June 2026', short: 'Jun' },
-      { key: '07', name: 'July 2026', short: 'Jul' },
-      { key: '08', name: 'August 2026', short: 'Aug' },
-      { key: '09', name: 'September 2026', short: 'Sep' },
-      { key: '10', name: 'October 2026', short: 'Oct' },
-      { key: '11', name: 'November 2026', short: 'Nov' },
-      { key: '12', name: 'December 2026', short: 'Dec' },
-      { key: '01', name: 'January 2027', short: 'Jan' },
-      { key: '02', name: 'February 2027', short: 'Feb' },
-      { key: '03', name: 'March 2027', short: 'Mar' }
-    ];
-
-    const FY_START = '2026-04-01';
-    const FY_END   = '2027-03-31';
-
-    // ── Formatting Helpers ──
+    // ── Formatting Helpers (with Privacy Mode Masking) ──
     function fmt(val) {
       if (isPrivacyMode) return '₹ ••••••';
       return '₹ ' + Math.round(val || 0).toLocaleString('en-IN');
@@ -1005,7 +1059,6 @@
       if (val >= 100000) return '₹ ' + (val / 100000).toFixed(2) + ' L';
       return '₹ ' + Math.round(val).toLocaleString('en-IN');
     }
-    // Strict DD-MM-YYYY
     function toDDMMYYYY(dateStr) {
       if (!dateStr) return '—';
       const clean = dateStr.slice(0, 10);
@@ -1030,7 +1083,7 @@
         subEl.innerText = 'Income from fixed investments';
       } else if (tabId === 'outflow') {
         titleEl.innerText = 'Insurance Outflow';
-        subEl.innerText = 'Commitments & policy due dates';
+        subEl.innerText = 'Commitments & policy schedules';
       } else if (tabId === 'assets') {
         titleEl.innerText = 'Fixed Investments';
         subEl.innerText = 'GSec, SGB, Bonds & Redemption Pipeline';
@@ -1045,13 +1098,13 @@
 
     function toggleRecd(txId) {
       recdMap[txId] = !recdMap[txId];
-      safeSet('fc_recd_v5', recdMap);
+      safeSet('fc_recd_v6', recdMap);
       render();
     }
 
     function togglePaid(insId) {
       paidMap[insId] = !paidMap[insId];
-      safeSet('fc_paid_v5', paidMap);
+      safeSet('fc_paid_v6', paidMap);
       render();
     }
 
@@ -1068,9 +1121,236 @@
       }
     }
 
+    // ── INSURANCE ADD / EDIT / DELETE ──
+    function openInsuranceModal(editId = null) {
+      const ins = editId ? insurance.find(i => i.id === editId) : null;
+      let html = '<div class="modal-drag-bar"></div>';
+      html += '<div class="modal-hdr">';
+      html += '  <h3 style="font-size:16.5px;font-weight:800;color:var(--text-dark);">' + (ins ? 'Edit Policy' : 'Add Insurance Policy') + '</h3>';
+      html += '  <button class="modal-close-btn" onclick="closeModal()">✕</button>';
+      html += '</div>';
+
+      html += '<form onsubmit="saveInsurance(event, \'' + (editId || '') + '\')" style="display:flex;flex-direction:column;gap:10px;font-size:12px;">';
+      html += '<div><label style="font-weight:700;display:block;margin-bottom:3px;">Portfolio Member</label>';
+      html += '<select id="ins_holder" style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
+      MEMBERS.filter(m => m.id !== 'All').forEach(m => {
+        const sel = ins && ins.holder === m.id ? 'selected' : '';
+        html += '<option value="' + m.id + '" ' + sel + '>' + m.name + '</option>';
+      });
+      html += '</select></div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Insurer</label><input type="text" id="ins_insurer" value="' + (ins ? ins.insurer : 'LIC of India') + '" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Policy Number</label><input type="text" id="ins_no" value="' + (ins ? ins.policy_no : '') + '" placeholder="e.g. POL-936-001" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '</div>';
+
+      html += '<div><label style="font-weight:700;display:block;margin-bottom:3px;">Plan / Scheme Name</label><input type="text" id="ins_plan" value="' + (ins ? ins.plan_name : '') + '" placeholder="e.g. LIC Jeevan Labh" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Annual Premium (₹)</label><input type="number" id="ins_premium" value="' + (ins ? ins.premium : '') + '" placeholder="67741" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Sum Assured (₹)</label><input type="number" id="ins_sum" value="' + (ins ? ins.sum_assured : '') + '" placeholder="1000000" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '</div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">PPT (Pay Yrs)</label><input type="number" id="ins_ppt" value="' + (ins ? ins.ppt_years : 10) + '" placeholder="10" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Policy Term (Yrs)</label><input type="number" id="ins_term" value="' + (ins ? ins.policy_term : 16) + '" placeholder="16" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '</div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Next Due Date</label><input type="date" id="ins_due" value="' + (ins ? ins.next_due : '2026-09-28') + '" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Frequency</label><select id="ins_freq" style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"><option value="Yearly">Yearly</option><option value="Half-Yearly">Half-Yearly</option><option value="Monthly">Monthly</option></select></div>';
+      html += '</div>';
+
+      html += '<button type="submit" style="background:var(--brand-green);color:#ffffff;border:none;padding:11px;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;margin-top:6px;">' + (ins ? 'Update Policy' : 'Save Policy') + '</button>';
+      html += '</form>';
+
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function saveInsurance(e, editId) {
+      e.preventDefault();
+      const holder = document.getElementById('ins_holder').value;
+      const insurer = document.getElementById('ins_insurer').value;
+      const no = document.getElementById('ins_no').value;
+      const plan = document.getElementById('ins_plan').value;
+      const premium = parseFloat(document.getElementById('ins_premium').value) || 0;
+      const sum = parseFloat(document.getElementById('ins_sum').value) || 0;
+      const ppt = parseInt(document.getElementById('ins_ppt').value, 10) || 10;
+      const term = parseInt(document.getElementById('ins_term').value, 10) || 16;
+      const due = document.getElementById('ins_due').value;
+      const freq = document.getElementById('ins_freq').value;
+
+      if (editId) {
+        const idx = insurance.findIndex(i => i.id === editId);
+        if (idx !== -1) {
+          insurance[idx] = {
+            ...insurance[idx],
+            holder, insurer, policy_no: no, plan_name: plan, premium, sum_assured: sum,
+            ppt_years: ppt, policy_term: term, next_due: due, frequency: freq
+          };
+        }
+      } else {
+        const newPolicy = {
+          id: 'ins_' + Date.now(),
+          holder, insurer, policy_no: no, plan_name: plan, premium, sum_assured: sum,
+          ppt_years: ppt, policy_term: term, next_due: due, frequency: freq, status: 'Active',
+          reminder_days: 15
+        };
+        insurance.push(newPolicy);
+      }
+      safeSet('fc_ins_v6', insurance);
+      closeModal();
+      render();
+    }
+
+    function deleteInsurance(insId) {
+      const ins = insurance.find(i => i.id === insId);
+      if (!ins) return;
+      if (confirm('Are you sure you want to delete policy: ' + ins.plan_name + ' (' + ins.policy_no + ')?')) {
+        insurance = insurance.filter(i => i.id !== insId);
+        delete paidMap[insId];
+        safeSet('fc_ins_v6', insurance);
+        safeSet('fc_paid_v6', paidMap);
+        render();
+      }
+    }
+
+    // ── BOND SELL / EXIT OPTION ──
+    function openSellModal(hId) {
+      const h = holdings.find(i => i.id === hId);
+      if (!h) return;
+      const defRate = h.grams > 0 ? sgbMarketPrice : h.unit_fv;
+      let html = '<div class="modal-drag-bar"></div>';
+      html += '<div class="modal-hdr">';
+      html += '  <div><h3 style="font-size:16.5px;font-weight:800;color:var(--text-dark);">Sell / Exit Investment</h3><div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">' + h.asset_name + '</div></div>';
+      html += '  <button class="modal-close-btn" onclick="closeModal()">✕</button>';
+      html += '</div>';
+
+      html += '<div style="background:#f8faf9;border-radius:12px;padding:12px;border:1px solid var(--card-border);margin-bottom:12px;font-size:12px;">';
+      html += '  <div>Portfolio: <b style="color:var(--brand-green);">' + h.portfolio + '</b></div>';
+      html += '  <div style="margin-top:2px;">Current Quantity: <b>' + h.qty + ' ' + h.qty_unit + '</b> • Total FV: <b>' + fmt(h.face_value) + '</b></div>';
+      html += '</div>';
+
+      html += '<form onsubmit="confirmSellHolding(event, \'' + h.id + '\')" style="display:flex;flex-direction:column;gap:10px;font-size:12px;">';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Sell Date</label><input type="date" id="sell_date" value="2026-09-14" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Quantity to Sell (' + h.qty_unit + ')</label><input type="number" step="any" id="sell_qty" value="' + h.qty + '" max="' + h.qty + '" min="1" oninput="calcSellTotal()" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '</div>';
+
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Sell Rate (₹ / ' + (h.grams > 0 ? 'Gram' : 'Unit') + ')</label><input type="number" step="any" id="sell_rate" value="' + defRate + '" oninput="calcSellTotal()" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+      html += '  <div><label style="font-weight:700;display:block;margin-bottom:3px;">Total Proceeds (₹)</label><input type="text" id="sell_total" readonly style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);background:#e2e8f0;font-weight:800;color:var(--brand-green);"></div>';
+      html += '</div>';
+
+      html += '<div><label style="font-weight:700;display:block;margin-bottom:3px;">Remarks / Note</label><input type="text" id="sell_note" placeholder="e.g. Profit booked / Reinvestment" style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
+
+      html += '<button type="submit" style="background:#b45309;color:#ffffff;border:none;padding:11px;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;margin-top:6px;">Confirm Sell & Exit</button>';
+      html += '</form>';
+
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modalOverlay').style.display = 'flex';
+      setTimeout(calcSellTotal, 50);
+    }
+
+    function calcSellTotal() {
+      const qty = parseFloat(document.getElementById('sell_qty').value) || 0;
+      const rate = parseFloat(document.getElementById('sell_rate').value) || 0;
+      const tot = qty * rate;
+      const el = document.getElementById('sell_total');
+      if (el) el.value = '₹ ' + Math.round(tot).toLocaleString('en-IN');
+    }
+
+    function confirmSellHolding(e, hId) {
+      e.preventDefault();
+      const hIdx = holdings.findIndex(i => i.id === hId);
+      if (hIdx === -1) return;
+      const h = holdings[hIdx];
+      const sellQty = parseFloat(document.getElementById('sell_qty').value) || 0;
+      const sellRate = parseFloat(document.getElementById('sell_rate').value) || 0;
+      const sellDate = document.getElementById('sell_date').value;
+      const totalProceeds = sellQty * sellRate;
+
+      if (sellQty >= h.qty) {
+        // Full Exit: remove holding
+        holdings.splice(hIdx, 1);
+        // Cancel future coupons for this asset
+        transactions = transactions.filter(t => !(t.asset === h.asset_name && t.holder === h.portfolio && t.date >= sellDate));
+      } else {
+        // Partial Exit: reduce quantity & proportional face value
+        const remQty = h.qty - sellQty;
+        const ratio = remQty / h.qty;
+        h.qty = remQty;
+        h.face_value = Math.round(h.face_value * ratio);
+        h.annual_gross = Math.round(h.annual_gross * ratio * 100) / 100;
+        if (h.grams > 0) h.grams = remQty;
+        // Adjust future coupons proportionally
+        transactions.forEach(t => {
+          if (t.asset === h.asset_name && t.holder === h.portfolio && t.date >= sellDate) {
+            t.amount = Math.round(t.amount * ratio);
+          }
+        });
+      }
+
+      safeSet('fc_holdings_v6', holdings);
+      safeSet('fc_tx_v6', transactions);
+      closeModal();
+      alert('✓ Successfully sold ' + sellQty + ' ' + h.qty_unit + ' of ' + h.asset_name + '\nTotal Realized: ₹ ' + Math.round(totalProceeds).toLocaleString('en-IN'));
+      render();
+    }
+
+    // ── CLICKABLE MATURITY BY YEAR MODAL ──
+    function openYearMaturityModal(yr) {
+      const fHoldings = holdings.filter(h => (currentHolder === 'All' || h.portfolio.toUpperCase() === currentHolder.toUpperCase()) && (h.maturity_year === yr));
+      let totalMaturityInYr = 0;
+      fHoldings.forEach(h => {
+        totalMaturityInYr += (h.grams > 0 ? h.grams * sgbMarketPrice : h.face_value);
+      });
+
+      let html = '<div class="modal-drag-bar"></div>';
+      html += '<div class="modal-hdr">';
+      html += '  <div><h3 style="font-size:17px;font-weight:800;color:var(--text-dark);">Year ' + yr + ' Maturity Schedule</h3>';
+      html += '  <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">' + fHoldings.length + ' Holding(s) Maturing • Total: <b style="color:var(--brand-green);">' + fmt(totalMaturityInYr) + '</b></div></div>';
+      html += '  <button class="modal-close-btn" onclick="closeModal()">✕</button>';
+      html += '</div>';
+
+      html += '<div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">';
+      if (fHoldings.length === 0) {
+        html += '<p style="color:var(--text-muted);padding:20px;text-align:center;">No holdings maturing in ' + yr + ' for selected portfolio.</p>';
+      } else {
+        fHoldings.forEach(h => {
+          const matVal = h.grams > 0 ? (h.grams * sgbMarketPrice) : h.face_value;
+          html += '<div class="clean-card" style="padding:13px;border-left:4px solid var(--brand-green);">';
+          html += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+          html += '    <div style="max-width:70%;">';
+          html += '      <div style="font-size:13.5px;font-weight:800;color:var(--text-dark);">' + h.asset_name + '</div>';
+          html += '      <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">Holder: <b style="color:var(--brand-green);">' + h.portfolio + '</b></div>';
+          html += '      <div style="font-size:11px;color:var(--text-muted);">Maturity Date: <b style="color:var(--accent-gold);">' + toDDMMYYYY(h.maturity_date) + '</b></div>';
+          html += '    </div>';
+          html += '    <div style="text-align:right;">';
+          html += '      <div style="font-size:14px;font-weight:800;color:var(--brand-green);">' + fmt(matVal) + '</div>';
+          html += '      <div style="font-size:10px;color:var(--text-light);">' + h.qty + ' ' + h.qty_unit + '</div>';
+          html += '    </div>';
+          html += '  </div>';
+
+          html += '  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--card-border);">';
+          html += '    <span class="pill-badge surplus" style="font-size:9.5px;">' + h.coupon_pct + '% Coupon</span>';
+          html += '    <div style="display:flex;gap:6px;">';
+          html += '      <button class="act-pill-btn sell" onclick="openSellModal(\'' + h.id + '\')">Sell / Exit</button>';
+          html += '      <button class="act-pill-btn" onclick="openBondModal(\'' + h.id + '\')">Details</button>';
+          html += '    </div>';
+          html += '  </div>';
+          html += '</div>';
+        });
+      }
+      html += '</div>';
+
+      document.getElementById('modalContent').innerHTML = html;
+      document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
     // ── Active Alerts calculation ──
     function getActiveAlerts() {
-      const today = '2026-04-14'; // Simulated active point
       const alerts = [];
       transactions.forEach(t => {
         if (!recdMap[t.id]) {
@@ -1133,6 +1413,11 @@
       html += '<div class="clean-card" style="padding:10px;"><b>Maturity Date</b><div style="color:var(--accent-gold);font-weight:800;margin-top:3px;">' + toDDMMYYYY(h.maturity_date) + '</div></div>';
       html += '<div class="clean-card" style="padding:10px;"><b>Annual Income</b><div style="color:var(--accent-mint-text);font-weight:800;margin-top:3px;">' + fmt(h.annual_gross) + '</div></div>';
       html += '</div>';
+
+      html += '<div style="margin-top:14px;display:flex;gap:8px;">';
+      html += '  <button class="act-pill-btn sell" onclick="closeModal();openSellModal(\'' + h.id + '\')" style="flex:1;padding:10px;justify-content:center;font-size:13px;border-radius:10px;">Sell / Exit Holding</button>';
+      html += '</div>';
+
       document.getElementById('modalContent').innerHTML = html;
       document.getElementById('modalOverlay').style.display = 'flex';
     }
@@ -1143,12 +1428,12 @@
 
     // ── Main Render Function ──
     function render() {
-      // Update Privacy Toggle Button
+      // Update Privacy Toggle Button Icon
       const privBtn = document.getElementById('privacyBtn');
       if (privBtn) {
         if (isPrivacyMode) {
           privBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>';
-          privBtn.title = "Privacy Mode Active (Tap to enter PIN and reveal amounts)";
+          privBtn.title = "Privacy Mode Active (Tap to enter PIN 636590 and reveal amounts)";
           privBtn.style.color = "var(--accent-coral-text)";
           privBtn.style.borderColor = "var(--accent-coral-badge)";
           privBtn.style.background = "var(--accent-coral-bg)";
@@ -1161,7 +1446,7 @@
         }
       }
 
-      // 1. Member Pills
+      // 1. Member Pills (Explicitly displaying "Pramesh Shah HUF")
       const pillContainer = document.getElementById('memberPills');
       pillContainer.innerHTML = MEMBERS.map(m => {
         const isActive = m.id === currentHolder;
@@ -1228,7 +1513,7 @@
       const viewport = document.getElementById('viewport');
 
       // ═════════════════════════════════════════════════════════════
-      // VIEW 1: HOME / DASHBOARD (Left Mockup)
+      // VIEW 1: HOME / DASHBOARD
       // ═════════════════════════════════════════════════════════════
       if (currentTab === 'dashboard') {
         let h = '';
@@ -1329,7 +1614,7 @@
       }
 
       // ═════════════════════════════════════════════════════════════
-      // VIEW 2: INTEREST INFLOW (Right Mockup)
+      // VIEW 2: INTEREST INFLOW
       // ═════════════════════════════════════════════════════════════
       else if (currentTab === 'inflow') {
         const curM = FY_MONTHS[activeMonthIdx];
@@ -1338,7 +1623,6 @@
 
         let h = '';
 
-        // Subpage Header
         h += '<div class="subpage-header">';
         h += '  <button onclick="switchTab(\'dashboard\')" class="nav-arrow-btn"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>';
         h += '  <div><div class="subpage-title">Interest Inflow</div><div class="subpage-sub">Income from fixed investments</div></div>';
@@ -1378,7 +1662,7 @@
               const parentH = holdings.find(h => h.asset_name === t.asset && h.portfolio === t.holder);
               const parentHId = parentH ? parentH.id : '';
               h += '<div class="coupon-card ' + (isDone ? 'recd' : '') + '">';
-              h += '  <div style="max-width:68%;">';
+              h += '  <div style="max-width:65%;">';
               h += '    <div class="coupon-title">' + t.asset + '</div>';
               h += '    <div class="coupon-date-badge">' + toDDMMYYYY(t.date) + ' • <span style="color:var(--brand-green);font-weight:700;">' + t.holder + '</span></div>';
               h += '  </div>';
@@ -1407,7 +1691,7 @@
             const parentH = holdings.find(h => h.asset_name === t.asset && h.portfolio === t.holder);
             const parentHId = parentH ? parentH.id : '';
             h += '<div class="coupon-card ' + (isDone ? 'recd' : '') + '">';
-            h += '  <div style="max-width:68%;">';
+            h += '  <div style="max-width:65%;">';
             h += '    <div class="coupon-title">' + t.asset + '</div>';
             h += '    <div class="coupon-date-badge">' + toDDMMYYYY(t.date) + ' • <span style="color:var(--brand-green);font-weight:700;">' + t.holder + '</span></div>';
             h += '  </div>';
@@ -1453,58 +1737,66 @@
       }
 
       // ═════════════════════════════════════════════════════════════
-      // VIEW 3: OUTFLOW (INSURANCE)
+      // VIEW 3: OUTFLOW (INSURANCE) — WITH ADD / EDIT / DELETE
       // ═════════════════════════════════════════════════════════════
       else if (currentTab === 'outflow') {
         let h = '';
 
         h += '<div class="subpage-header">';
         h += '  <button onclick="switchTab(\'dashboard\')" class="nav-arrow-btn"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>';
-        h += '  <div><div class="subpage-title">Insurance Outflow</div><div class="subpage-sub">Committed premium schedules</div></div>';
-        h += '  <div style="width:32px;"></div>';
+        h += '  <div><div class="subpage-title">Insurance Outflow</div><div class="subpage-sub">Commitments & policy schedules</div></div>';
+        h += '  <button class="nav-arrow-btn" onclick="openInsuranceModal()" title="Add Policy"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></button>';
         h += '</div>';
 
-        // Outflow Total Card
+        // Outflow Total Banner
         h += '<div class="month-banner-card">';
         h += '  <div class="month-banner-left">';
         h += '    <div class="icon-circle outflow" style="margin-bottom:0;width:42px;height:42px;"><svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg></div>';
         h += '    <div><div class="stat-lbl">Annual Premium Due</div><div class="stat-amt" style="color:var(--accent-coral-text);margin:2px 0 0;">' + fmt(totFYOutflow) + '</div></div>';
         h += '  </div>';
-        h += '  <span class="pill-badge" style="background:var(--accent-coral-badge);color:var(--accent-coral-text);">' + fIns.length + ' Active Policy</span>';
+        h += '  <button onclick="openInsuranceModal()" class="pill-badge" style="background:var(--brand-green);color:#ffffff;border:none;cursor:pointer;padding:6px 12px;">+ Add Policy</button>';
         h += '</div>';
 
         // Policy Cards
-        h += '<div style="display:flex;flex-direction:column;gap:10px;margin-top:6px;">';
-        fIns.forEach(p => {
-          const isPaid = !!paidMap[p.id];
-          h += '<div class="clean-card" style="padding:16px;">';
-          h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-          h += '    <div>';
-          h += '      <span class="pill-badge" style="background:var(--accent-coral-badge);color:var(--accent-coral-text);font-size:10px;">' + p.insurer + '</span>';
-          h += '      <div style="font-size:15px;font-weight:800;color:var(--text-dark);margin-top:4px;">' + p.plan_name + '</div>';
-          h += '      <div style="font-size:11.5px;color:var(--text-muted);">' + p.holder + ' • Policy: ' + p.policy_no + '</div>';
-          h += '    </div>';
-          h += '    <div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:var(--accent-coral-text);">' + fmt(p.premium) + '</div><span style="font-size:10px;color:var(--text-muted);">' + p.frequency + '</span></div>';
-          h += '  </div>';
+        if (fIns.length === 0) {
+          h += '<div class="clean-card" style="text-align:center;padding:24px;color:var(--text-muted);font-size:12.5px;">No insurance policies listed for this portfolio.<br><button onclick="openInsuranceModal()" style="margin-top:10px;background:var(--brand-green);color:#fff;border:none;padding:6px 14px;border-radius:10px;font-weight:700;cursor:pointer;">+ Add Policy</button></div>';
+        } else {
+          h += '<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">';
+          fIns.forEach(p => {
+            const isPaid = !!paidMap[p.id];
+            h += '<div class="clean-card" style="padding:16px;">';
+            h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+            h += '    <div>';
+            h += '      <span class="pill-badge" style="background:var(--accent-coral-badge);color:var(--accent-coral-text);font-size:10px;">' + p.insurer + '</span>';
+            h += '      <div style="font-size:15px;font-weight:800;color:var(--text-dark);margin-top:4px;">' + p.plan_name + '</div>';
+            h += '      <div style="font-size:11.5px;color:var(--text-muted);">' + p.holder + ' • Policy: ' + p.policy_no + '</div>';
+            h += '    </div>';
+            h += '    <div style="text-align:right;"><div style="font-size:16px;font-weight:800;color:var(--accent-coral-text);">' + fmt(p.premium) + '</div><span style="font-size:10px;color:var(--text-muted);">' + p.frequency + '</span></div>';
+            h += '  </div>';
 
-          h += '  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;background:#f8faf9;border-radius:12px;padding:10px;margin:12px 0;font-size:11px;border:1px solid var(--card-border);">';
-          h += '    <div><span style="color:var(--text-muted);display:block;">PPT / Term</span><b style="color:var(--text-dark);">' + p.ppt_years + ' Yrs / ' + p.policy_term + ' Yrs</b></div>';
-          h += '    <div><span style="color:var(--text-muted);display:block;">Next Due Date</span><b style="color:var(--brand-green);">' + toDDMMYYYY(p.next_due) + '</b></div>';
-          h += '    <div><span style="color:var(--text-muted);display:block;">Sum Assured</span><b style="color:var(--text-dark);">' + fmtShort(p.sum_assured) + '</b></div>';
-          h += '  </div>';
+            h += '  <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;background:#f8faf9;border-radius:12px;padding:10px;margin:12px 0;font-size:11px;border:1px solid var(--card-border);">';
+            h += '    <div><span style="color:var(--text-muted);display:block;">PPT / Term</span><b style="color:var(--text-dark);">' + p.ppt_years + ' Yrs / ' + p.policy_term + ' Yrs</b></div>';
+            h += '    <div><span style="color:var(--text-muted);display:block;">Next Due Date</span><b style="color:var(--brand-green);">' + toDDMMYYYY(p.next_due) + '</b></div>';
+            h += '    <div><span style="color:var(--text-muted);display:block;">Sum Assured</span><b style="color:var(--text-dark);">' + fmtShort(p.sum_assured) + '</b></div>';
+            h += '  </div>';
 
-          h += '  <button onclick="togglePaid(\'' + p.id + '\')" class="btn-mark-recd ' + (isPaid ? 'done' : 'pending') + '" style="width:100%;padding:9px;border-radius:12px;font-size:12px;">';
-          h += '    ' + (isPaid ? '✓ Marked as Paid for Current FY' : 'Mark as Paid') + '';
-          h += '  </button>';
+            h += '  <div style="display:flex;gap:8px;align-items:center;">';
+            h += '    <button onclick="togglePaid(\'' + p.id + '\')" class="btn-mark-recd ' + (isPaid ? 'done' : 'pending') + '" style="flex:1;padding:9px;border-radius:12px;font-size:12px;">';
+            h += '      ' + (isPaid ? '✓ Marked as Paid for Current FY' : 'Mark as Paid') + '';
+            h += '    </button>';
+            h += '    <button onclick="openInsuranceModal(\'' + p.id + '\')" class="act-pill-btn" style="padding:8px 12px;border-radius:12px;">✏️ Edit</button>';
+            h += '    <button onclick="deleteInsurance(\'' + p.id + '\')" class="act-pill-btn danger" style="padding:8px 12px;border-radius:12px;">🗑️</button>';
+            h += '  </div>';
+            h += '</div>';
+          });
           h += '</div>';
-        });
-        h += '</div>';
+        }
 
         viewport.innerHTML = h;
       }
 
       // ═════════════════════════════════════════════════════════════
-      // VIEW 4: ASSETS & MATURITY DIRECTORY
+      // VIEW 4: ASSETS & MATURITY — WITH CLICKABLE BARS & SELL OPTION
       // ═════════════════════════════════════════════════════════════
       else if (currentTab === 'assets') {
         let h = '';
@@ -1512,7 +1804,7 @@
         h += '<div class="subpage-header">';
         h += '  <button onclick="switchTab(\'dashboard\')" class="nav-arrow-btn"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>';
         h += '  <div><div class="subpage-title">Fixed Investments</div><div class="subpage-sub">Portfolio Holdings & Redemption Pipeline</div></div>';
-        h += '  <button class="nav-arrow-btn" onclick="openAddModal()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></button>';
+        h += '  <button class="nav-arrow-btn" onclick="openAddModal()" title="Add Investment"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg></button>';
         h += '</div>';
 
         // Total Maturity Card
@@ -1524,7 +1816,7 @@
         h += '  </div>';
         h += '</div>';
 
-        // Maturity by Year Schedule
+        // Clickable Maturity by Year Schedule
         const yearBuckets = {};
         fHoldings.forEach(item => {
           const yr = item.maturity_year || '2099';
@@ -1542,39 +1834,49 @@
         const maxYearVal = Math.max(...sortedYrs.map(y => yearBuckets[y].totalFV + (yearBuckets[y].sgbGrams * sgbMarketPrice)), 1);
 
         h += '<div class="clean-card">';
-        h += '  <div class="chart-header"><span class="chart-title">Maturity by Year</span><span style="font-size:11px;color:var(--text-muted);">' + sortedYrs.length + ' Redemption Milestones</span></div>';
-        h += '  <div style="display:flex;align-items:flex-end;height:84px;gap:6px;padding-bottom:4px;">';
+        h += '  <div class="chart-header">';
+        h += '    <div><span class="chart-title">Maturity by Year</span><div style="font-size:10px;color:var(--brand-green);font-weight:700;margin-top:2px;">👆 Tap any bar to view maturing bonds</div></div>';
+        h += '    <span style="font-size:11px;color:var(--text-muted);">' + sortedYrs.length + ' Milestones</span>';
+        h += '  </div>';
+        h += '  <div style="display:flex;align-items:flex-end;height:90px;gap:6px;padding-bottom:4px;">';
         sortedYrs.forEach(y => {
           const b = yearBuckets[y];
           const val = b.totalFV + (b.sgbGrams * sgbMarketPrice);
-          const bH = Math.max(6, Math.round((val / maxYearVal) * 68));
-          h += '  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;">';
+          const bH = Math.max(8, Math.round((val / maxYearVal) * 72));
+          h += '  <div class="maturity-year-col" onclick="openYearMaturityModal(\'' + y + '\')" title="Tap to view ' + y + ' bonds (' + b.count + ' items, ' + fmt(val) + ')">';
           h += '    <div style="font-size:7px;font-weight:700;color:var(--text-light);">' + (val >= 10000000 ? (val/10000000).toFixed(1)+'Cr' : (val/100000).toFixed(0)+'L') + '</div>';
-          h += '    <div style="width:100%;height:' + bH + 'px;border-radius:3px;background:var(--brand-green);"></div>';
-          h += '    <span style="font-size:8px;font-weight:700;color:var(--text-muted);">' + y + '</span>';
+          h += '    <div style="width:100%;height:' + bH + 'px;border-radius:3px;background:var(--brand-green);box-shadow:0 2px 6px rgba(10,62,47,0.2);"></div>';
+          h += '    <span style="font-size:8px;font-weight:800;color:var(--text-dark);">' + y + '</span>';
           h += '  </div>';
         });
         h += '  </div>';
         h += '</div>';
 
-        // Holdings List categorized
+        // Holdings Directory with Sell & Details Buttons
         h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 2px;">';
         h += '  <span style="font-size:12px;font-weight:800;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;">All Holdings (' + fHoldings.length + ')</span>';
-        h += '  <span style="font-size:11px;color:var(--brand-green);font-weight:700;">Tap card for summary</span>';
+        h += '  <button class="pill-badge" onclick="openAddModal()" style="background:var(--brand-green);color:#ffffff;border:none;cursor:pointer;font-size:11px;padding:4px 10px;">+ Add Bond</button>';
         h += '</div>';
 
         h += '<div style="display:flex;flex-direction:column;gap:8px;">';
         fHoldings.forEach(hItem => {
-          h += '<div class="clean-card" onclick="openBondModal(\'' + hItem.id + '\')" style="cursor:pointer;padding:12px 14px;transition:all 0.15s ease;">';
+          const val = hItem.grams > 0 ? (hItem.grams * sgbMarketPrice) : hItem.face_value;
+          h += '<div class="clean-card" style="padding:13px 14px;">';
           h += '  <div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-          h += '    <div style="max-width:72%;">';
+          h += '    <div style="max-width:68%;">';
           h += '      <div style="font-size:13px;font-weight:800;color:var(--text-dark);line-height:1.25;">' + hItem.asset_name + '</div>';
           h += '      <div style="font-size:10.5px;color:var(--text-muted);margin-top:3px;">' + hItem.portfolio + ' • <span style="color:var(--brand-green);font-weight:700;">' + hItem.qty + ' ' + hItem.qty_unit + '</span></div>';
+          h += '      <div style="font-size:10.5px;color:var(--accent-gold);margin-top:1px;">Matures: ' + toDDMMYYYY(hItem.maturity_date) + '</div>';
           h += '    </div>';
           h += '    <div style="text-align:right;">';
-          h += '      <div style="font-size:13.5px;font-weight:800;color:var(--text-dark);">' + (hItem.grams > 0 ? fmt(hItem.grams * sgbMarketPrice) : fmt(hItem.face_value)) + '</div>';
+          h += '      <div style="font-size:13.5px;font-weight:800;color:var(--text-dark);">' + fmt(val) + '</div>';
           h += '      <span class="pill-badge surplus" style="font-size:9.5px;margin-top:2px;">' + hItem.coupon_pct + '% Yield</span>';
           h += '    </div>';
+          h += '  </div>';
+
+          h += '  <div style="display:flex;justify-content:flex-end;gap:6px;margin-top:10px;padding-top:8px;border-top:1px solid var(--card-border);">';
+          h += '    <button class="act-pill-btn sell" onclick="openSellModal(\'' + hItem.id + '\')">Sell / Exit</button>';
+          h += '    <button class="act-pill-btn" onclick="openBondModal(\'' + hItem.id + '\')">Details</button>';
           h += '  </div>';
           h += '</div>';
         });
@@ -1590,7 +1892,7 @@
       html += '<form onsubmit="saveNewHolding(event)" style="display:flex;flex-direction:column;gap:10px;font-size:12px;">';
       html += '<div><label style="font-weight:700;display:block;margin-bottom:3px;">Portfolio Member</label><select id="new_holder" style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);">';
       MEMBERS.filter(m => m.id !== 'All').forEach(m => {
-        html += '<option value="' + m.id + '">' + m.name + ' (' + m.id + ')</option>';
+        html += '<option value="' + m.id + '">' + m.name + '</option>';
       });
       html += '</select></div>';
       html += '<div><label style="font-weight:700;display:block;margin-bottom:3px;">Asset Name</label><input type="text" id="new_name" placeholder="e.g. G-Sec 7.30% GS 2053" required style="width:100%;padding:8px;border-radius:10px;border:1px solid var(--card-border);"></div>';
@@ -1635,7 +1937,7 @@
         unit_fv: fv / qty
       };
       holdings.push(newH);
-      safeSet('fc_holdings_v5', holdings);
+      safeSet('fc_holdings_v6', holdings);
       closeModal();
       render();
     }
