@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Crescendo Cashflow</string>
-    <string name="title_activity_main">Crescendo Cashflow</string>
+    <string name="app_name">Family Cashflow</string>
+    <string name="title_activity_main">Family Cashflow</string>
     <string name="package_name">com.crescendofinserv.cashflow</string>
     <string name="custom_url_scheme">com.crescendofinserv.cashflow</string>
 </resources>
