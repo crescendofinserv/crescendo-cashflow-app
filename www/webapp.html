@@ -1,0 +1,2778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crescendo Wealth &amp; Cashflow — Treasury Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --brand-green: #0a3e2f;
+      --brand-green-hover: #072a20;
+      --brand-green-light: #164e3f;
+      --brand-green-subtle: rgba(10, 62, 47, 0.08);
+      --accent-mint-bg: #ecfdf5;
+      --accent-mint-text: #047857;
+      --accent-mint-badge: #d1fae5;
+      --accent-coral-bg: #fef2f2;
+      --accent-coral-text: #dc2626;
+      --accent-coral-badge: #fee2e2;
+      --accent-gold: #b45309;
+      --accent-gold-bg: #fef3c7;
+      --accent-blue: #0284c7;
+      --accent-blue-bg: #e0f2fe;
+      --bg-main: #f8faf9;
+      --card-bg: #ffffff;
+      --card-border: #e9ecef;
+      --text-dark: #0f172a;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+      --sidebar-width: 270px;
+      --topbar-height: 76px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.08);
+      --radius-sm: 10px;
+      --radius-md: 16px;
+      --radius-lg: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      background: var(--bg-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-dark);
+      overflow: hidden;
+    }
+
+    /* Top-Level Layout */
+    .web-app-layout {
+      display: flex;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      background: var(--bg-main);
+    }
+
+    /* Left Sidebar */
+    .web-sidebar {
+      width: var(--sidebar-width);
+      min-width: var(--sidebar-width);
+      height: 100%;
+      background: #ffffff;
+      border-right: 1px solid var(--card-border);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+      box-shadow: 2px 0 12px rgba(0, 0, 0, 0.02);
+    }
+
+    .sidebar-brand {
+      padding: 24px 22px 18px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--brand-green) 0%, #164e3f 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(10, 62, 47, 0.25);
+      flex-shrink: 0;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .sidebar-menu {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(10, 62, 47, 0.15) transparent;
+    }
+
+    .menu-heading {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 10px 12px 4px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    .nav-item-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-item svg {
+      width: 18px;
+      height: 18px;
+      transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+      background: #f8fafc;
+      color: var(--text-dark);
+    }
+
+    .nav-item.active {
+      background: var(--brand-green);
+      color: #ffffff;
+      box-shadow: 0 4px 14px rgba(10, 62, 47, 0.25);
+    }
+
+    .nav-item.active svg {
+      stroke: #ffffff;
+    }
+
+    .nav-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 9999px;
+      background: #f1f5f9;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+    }
+
+    .nav-item.active .nav-badge {
+      background: rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+    }
+
+    /* Sidebar Footer / SGB Mini Widget */
+    .sidebar-footer {
+      padding: 16px 14px;
+      border-top: 1px solid #f1f5f9;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #fafbfc;
+    }
+
+    .sgb-mini-card {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .sgb-mini-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .sgb-mini-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-gold);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .sgb-mini-val {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+
+    .sgb-mini-slider {
+      width: 100%;
+      accent-color: var(--accent-gold);
+      cursor: pointer;
+      height: 4px;
+      margin: 6px 0;
+    }
+
+    .sgb-mini-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .sidebar-actions-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-btn {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid var(--card-border);
+      background: #ffffff;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .sidebar-btn:hover {
+      background: #f1f5f9;
+      color: var(--text-dark);
+    }
+
+    /* Main Container & Topbar */
+    .web-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .web-topbar {
+      height: var(--topbar-height);
+      min-height: var(--topbar-height);
+      background: #ffffff;
+      border-bottom: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      gap: 20px;
+      z-index: 10;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .topbar-left {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .topbar-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .topbar-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .topbar-center {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0;
+      max-width: 580px;
+      scrollbar-width: none;
+    }
+    .topbar-center::-webkit-scrollbar { display: none; }
+
+    .member-chip {
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid var(--card-border);
+      background: #f8fafc;
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .member-chip:hover {
+      background: #f1f5f9;
+      color: var(--text-dark);
+    }
+
+    .member-chip.active {
+      background: var(--brand-green);
+      color: #ffffff;
+      border-color: var(--brand-green);
+      box-shadow: 0 3px 10px rgba(10, 62, 47, 0.22);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .search-input-box {
+      position: relative;
+      width: 220px;
+    }
+
+    .search-input-box input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      border-radius: 9999px;
+      border: 1px solid var(--card-border);
+      background: #f8fafc;
+      font-size: 12px;
+      font-family: inherit;
+      color: var(--text-dark);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input-box input:focus {
+      background: #ffffff;
+      border-color: var(--brand-green);
+      box-shadow: 0 0 0 3px rgba(10, 62, 47, 0.1);
+      width: 260px;
+    }
+
+    .search-input-box svg {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-light);
+      pointer-events: none;
+    }
+
+    .topbar-action-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-dark);
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .topbar-action-btn:hover {
+      background: #f1f5f9;
+    }
+
+    .notif-badge-dot {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-coral-text);
+      border: 2px solid #ffffff;
+    }
+
+    .btn-new-action {
+      padding: 8px 16px;
+      border-radius: 9999px;
+      background: var(--brand-green);
+      color: #ffffff;
+      font-size: 12.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 3px 10px rgba(10, 62, 47, 0.22);
+      transition: all 0.15s ease;
+    }
+
+    .btn-new-action:hover {
+      background: var(--brand-green-hover);
+      transform: translateY(-1px);
+    }
+
+    /* Scrollable Canvas */
+    .web-canvas {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 36px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(10, 62, 47, 0.25) transparent;
+    }
+
+    .web-canvas::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .web-canvas::-webkit-scrollbar-thumb {
+      background: rgba(10, 62, 47, 0.25);
+      border-radius: 4px;
+    }
+
+    .canvas-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Clean Card Component */
+    .clean-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--card-border);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s ease;
+    }
+
+    .clean-card:hover {
+      box-shadow: var(--shadow-md);
+    }
+
+    .card-hdr-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .card-hdr-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.01em;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* KPI Cards 4-Column Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    .kpi-card {
+      background: #ffffff;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: #cbd5e1;
+    }
+
+    .kpi-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .kpi-icon-circle {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .kpi-icon-circle.inflow {
+      background: var(--accent-mint-bg);
+      color: var(--accent-mint-text);
+    }
+
+    .kpi-icon-circle.outflow {
+      background: var(--accent-coral-bg);
+      color: var(--accent-coral-text);
+    }
+
+    .kpi-icon-circle.net {
+      background: var(--brand-green-subtle);
+      color: var(--brand-green);
+    }
+
+    .kpi-icon-circle.gold {
+      background: var(--accent-gold-bg);
+      color: var(--accent-gold);
+    }
+
+    .kpi-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 9999px;
+    }
+
+    .kpi-lbl {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .kpi-val {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.03em;
+      margin: 4px 0 2px;
+    }
+
+    .kpi-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* 2-Column Responsive Dashboard Split */
+    .dashboard-split-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+    }
+
+    /* Monthly Cashflow Bar Chart */
+    .cf-chart-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 180px;
+      padding-top: 24px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .cf-chart-container::-webkit-scrollbar { display: none; }
+
+    .cf-bar-col {
+      flex: 1;
+      min-width: 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .cf-bar-col:hover {
+      transform: translateY(-2px);
+    }
+
+    .cf-bar-amt {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+
+    .cf-bar-track {
+      width: 16px;
+      border-radius: 8px;
+      background: var(--brand-green);
+      transition: height 0.3s ease;
+      min-height: 4px;
+    }
+
+    .cf-bar-track.outflow {
+      background: var(--accent-coral-text);
+    }
+
+    .cf-bar-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 8px;
+      text-align: center;
+    }
+
+    /* Interactive Maturity by Year Scroll & Bars */
+    .maturity-chart-scroll {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      overflow-x: auto;
+      padding: 12px 6px 14px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(10, 62, 47, 0.25) transparent;
+    }
+
+    .maturity-chart-scroll::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .maturity-chart-scroll::-webkit-scrollbar-thumb {
+      background: rgba(10, 62, 47, 0.25);
+      border-radius: 4px;
+    }
+
+    .year-col-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      padding: 4px 6px;
+      border-radius: 12px;
+      transition: all 0.2s ease;
+      min-width: 62px;
+      flex-shrink: 0;
+      outline: none;
+    }
+
+    .year-col-btn:hover {
+      background: #f1f5f9;
+      transform: translateY(-3px);
+    }
+
+    .year-bar-val {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+      white-space: nowrap;
+    }
+
+    .year-bar-track {
+      width: 22px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #10b981 0%, var(--brand-green) 100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(10, 62, 47, 0.18);
+    }
+
+    .year-bar-lbl {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-top: 8px;
+    }
+
+    /* Data Table Styling */
+    .web-table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--card-border);
+      background: #ffffff;
+    }
+
+    .web-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    .web-table th {
+      background: #f8fafc;
+      padding: 12px 18px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .web-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid #f1f5f9;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    .web-table tr:hover td {
+      background: #fafbfc;
+    }
+
+    .table-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .btn-action-sm {
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid var(--card-border);
+      background: #ffffff;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .btn-action-sm:hover {
+      background: #f1f5f9;
+    }
+
+    .btn-action-sm.recd {
+      background: var(--accent-mint-badge);
+      color: var(--accent-mint-text);
+      border-color: transparent;
+    }
+
+    .btn-action-sm.paid {
+      background: var(--accent-mint-badge);
+      color: var(--accent-mint-text);
+      border-color: transparent;
+    }
+
+    /* Modal / Centered Dialog */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-dialog {
+      background: #ffffff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 580px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 26px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+    }
+
+    .modal-close-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--card-border);
+      background: #f8fafc;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .modal-close-btn:hover {
+      background: #f1f5f9;
+      color: var(--text-dark);
+    }
+
+    /* Form Fields */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .form-lbl {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: #f8fafc;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-dark);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus, .form-select:focus {
+      background: #ffffff;
+      border-color: var(--brand-green);
+      box-shadow: 0 0 0 3px rgba(10, 62, 47, 0.1);
+    }
+
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      background: var(--brand-green);
+      color: #ffffff;
+      font-size: 14px;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(10, 62, 47, 0.25);
+      transition: all 0.15s ease;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background: var(--brand-green-hover);
+    }
+
+    /* PIN Keypad in Modal */
+    .pin-dots-row {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin: 18px 0;
+    }
+
+    .pin-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid var(--brand-green);
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+
+    .pin-dot.filled {
+      background: var(--brand-green);
+    }
+
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 280px;
+      margin: 0 auto;
+    }
+
+    .pin-key {
+      height: 52px;
+      border-radius: 14px;
+      border: 1px solid var(--card-border);
+      background: #f8fafc;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .pin-key:hover {
+      background: #f1f5f9;
+    }
+
+    .pin-key:active {
+      transform: scale(0.94);
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 1100px) {
+      .kpi-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .dashboard-split-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .web-sidebar {
+        display: none;
+      }
+      .web-topbar {
+        padding: 0 16px;
+      }
+      .web-canvas {
+        padding: 16px;
+      }
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="web-app-layout">
+
+    <!-- Left Sidebar -->
+    <aside class="web-sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">
+          <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-title">Crescendo</div>
+          <div class="brand-sub">Wealth &amp; Cashflow</div>
+        </div>
+      </div>
+
+      <nav class="sidebar-menu">
+        <div class="menu-heading">Main Modules</div>
+        
+        <a class="nav-item active" id="nav-dashboard" onclick="switchNav('dashboard')">
+          <div class="nav-item-left">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+            <span>Dashboard Overview</span>
+          </div>
+          <span class="nav-badge">Live</span>
+        </a>
+
+        <a class="nav-item" id="nav-inflow" onclick="switchNav('inflow')">
+          <div class="nav-item-left">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
+            <span>Inflows &amp; Coupons</span>
+          </div>
+          <span class="nav-badge" id="badge-inflow-count">90</span>
+        </a>
+
+        <a class="nav-item" id="nav-outflow" onclick="switchNav('outflow')">
+          <div class="nav-item-left">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6"/></svg>
+            <span>Outflows &amp; Expenses</span>
+          </div>
+          <span class="nav-badge" id="badge-outflow-count">7</span>
+        </a>
+
+        <a class="nav-item" id="nav-maturity" onclick="switchNav('maturity')">
+          <div class="nav-item-left">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <span>Maturity by Year</span>
+          </div>
+          <span class="nav-badge">15 Yrs</span>
+        </a>
+
+        <a class="nav-item" id="nav-insurance" onclick="switchNav('insurance')">
+          <div class="nav-item-left">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <span>Insurance &amp; PPT</span>
+          </div>
+          <span class="nav-badge" id="badge-ins-count">1</span>
+        </a>
+
+        <a class="nav-item" id="nav-analytics" onclick="switchNav('analytics')">
+          <div class="nav-item-left">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+            <span>Spending Analytics</span>
+          </div>
+        </a>
+
+        <a class="nav-item" id="nav-holdings" onclick="switchNav('holdings')">
+          <div class="nav-item-left">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <span>Holdings Directory</span>
+          </div>
+          <span class="nav-badge">46</span>
+        </a>
+      </nav>
+
+      <!-- Sidebar Footer: SGB Live Slider & Backup -->
+      <div class="sidebar-footer">
+        <div class="sgb-mini-card">
+          <div class="sgb-mini-hdr">
+            <span class="sgb-mini-title">
+              <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              SGB Gold Price
+            </span>
+            <span class="sgb-mini-val" id="sidebarGoldPrice">₹9,800/g</span>
+          </div>
+          <input type="range" class="sgb-mini-slider" id="sidebarGoldSlider" min="6000" max="20000" step="250" value="9800" oninput="onSgbSliderInput(this.value)" onchange="onSgbSliderChange(this.value)">
+          <div class="sgb-mini-stats">
+            <span id="sidebarGoldGrams">203g Held</span>
+            <span id="sidebarGoldVal">₹19.89 L</span>
+          </div>
+        </div>
+
+        <div class="sidebar-actions-row">
+          <button class="sidebar-btn" onclick="openBackupModal()" title="Export or import JSON backup">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+            Backup
+          </button>
+          <a class="sidebar-btn" href="index.html" title="Open Mobile View">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+            Mobile App
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="web-main">
+
+      <!-- Topbar Header -->
+      <header class="web-topbar">
+        <div class="topbar-left">
+          <h1 class="topbar-title" id="dynTopbarTitle">Dashboard Overview</h1>
+          <p class="topbar-sub" id="dynTopbarSub">Consolidated Multi-Holder Family Treasury</p>
+        </div>
+
+        <!-- Center: Member Selector Pills -->
+        <div class="topbar-center" id="memberChipsRow">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Right: Search, Privacy, Notification, New Action -->
+        <div class="topbar-right">
+          <div class="search-input-box">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+            <input type="text" id="globalSearchInput" placeholder="Filter bonds, dues..." oninput="handleSearch(this.value)">
+          </div>
+
+          <button class="topbar-action-btn" id="privacyBtn" onclick="handlePrivacyClick()" title="Privacy Mode (PIN 636590)">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </button>
+
+          <button class="topbar-action-btn" onclick="openNotifs()" title="Alerts &amp; Due Reminders">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <span class="notif-badge-dot" id="notifBadge"></span>
+          </button>
+
+          <button class="btn-new-action" onclick="openQuickActionMenu()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <span>+ New</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Canvas -->
+      <section class="web-canvas" id="mainCanvas">
+        <div class="canvas-container" id="canvasContainer">
+          <!-- Dynamic Module Content Injected Here -->
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <!-- Global Modal Dialog Overlay -->
+  <div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this) closeModal()">
+    <div class="modal-dialog" id="modalContent"></div>
+  </div>
+
+  <!-- Core JavaScript Engine -->
+  <script>
+    // ── Seed Constants ──
+    const SEED_HOLDINGS = [{"id":"h_1","portfolio":"Krisha Saahil Shah","asset_name":"G-Sec 6.99% GS 2051 (ISIN IN0020210194)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020210194","coupon_pct":6.99,"interest_dates":"15-Jun, 15-Dec","maturity_date":"2051-12-15","maturity_year":"2051","annual_gross":2097,"face_value":30000,"grams":0,"qty":300,"qty_unit":"Units","unit_fv":100},{"id":"h_2","portfolio":"Krisha Saahil Shah","asset_name":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020220029","coupon_pct":7.54,"interest_dates":"23-May, 23-Nov","maturity_date":"2036-05-23","maturity_year":"2036","annual_gross":30160,"face_value":400000,"grams":0,"qty":4000,"qty_unit":"Units","unit_fv":100},{"id":"h_3","portfolio":"Krisha Saahil Shah","asset_name":"Sovereign Gold Bond 2.50% SEP 2028 SR-VI 2020-21 (IN0020200195)","asset_type":"SGB Gold","isin":"IN0020200195","coupon_pct":2.5,"interest_dates":"08-Mar, 08-Sep","maturity_date":"2028-09-08","maturity_year":"2028","annual_gross":639.62,"face_value":51170,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":5117},{"id":"h_4","portfolio":"Pramesh R Shah","asset_name":"G-Sec 7.34% GS 2064 (ISIN IN0020240035)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020240035","coupon_pct":7.34,"interest_dates":"22-Apr, 22-Oct","maturity_date":"2064-04-22","maturity_year":"2064","annual_gross":73400,"face_value":1000000,"grams":0,"qty":10000,"qty_unit":"Units","unit_fv":100},{"id":"h_5","portfolio":"Pramesh R Shah","asset_name":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020220029","coupon_pct":7.54,"interest_dates":"23-May, 23-Nov","maturity_date":"2036-05-23","maturity_year":"2036","annual_gross":75400,"face_value":1000000,"grams":0,"qty":10000,"qty_unit":"Units","unit_fv":100},{"id":"h_6","portfolio":"Pramesh R Shah","asset_name":"RBI BOND 7.75 %","asset_type":"RBI Savings Bond","isin":"N/A (RBI Savings Bond)","coupon_pct":7.75,"interest_dates":"01-Feb, 01-Aug","maturity_date":"2025-08-01","maturity_year":"2025","annual_gross":77.5,"face_value":1000,"grams":0,"qty":1,"qty_unit":"Bonds","unit_fv":1000},{"id":"h_7","portfolio":"Pramesh R Shah","asset_name":"Sovereign Gold Bond 2.50% DEC 2029 SR-VIII 2021-22 (IN0020210228)","asset_type":"SGB Gold","isin":"IN0020210228","coupon_pct":2.5,"interest_dates":"07-Jun, 07-Dec","maturity_date":"2029-12-07","maturity_year":"2029","annual_gross":598.88,"face_value":47910,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":4791},{"id":"h_8","portfolio":"Pramesh R Shah","asset_name":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","asset_type":"SGB Gold","isin":"IN0020210111","coupon_pct":2.5,"interest_dates":"20-Jan, 20-Jul","maturity_date":"2029-07-20","maturity_year":"2029","annual_gross":600.88,"face_value":24035,"grams":5,"qty":5,"qty_unit":"Grams","unit_fv":4807},{"id":"h_9","portfolio":"Pramesh R Shah","asset_name":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","asset_type":"SGB Gold","isin":"IN0020210061","coupon_pct":2.5,"interest_dates":"01-Jun, 01-Dec","maturity_date":"2029-06-01","maturity_year":"2029","annual_gross":2905.2,"face_value":116208,"grams":24,"qty":24,"qty_unit":"Grams","unit_fv":4842},{"id":"h_10","portfolio":"Pramesh R Shah","asset_name":"Sovereign Gold Bond 2.50% JUN 2030 Sr-I 2022-23 (IN0020220045)","asset_type":"SGB Gold","isin":"IN0020220045","coupon_pct":2.5,"interest_dates":"28-Jun, 28-Dec","maturity_date":"2030-06-28","maturity_year":"2030","annual_gross":598.88,"face_value":45819,"grams":9,"qty":9,"qty_unit":"Grams","unit_fv":5091},{"id":"h_11","portfolio":"Pramesh R Shah","asset_name":"Sovereign Gold Bond 2.50% MAR 2029 SR-XII 2020-21 (IN0020200427)","asset_type":"SGB Gold","isin":"IN0020200427","coupon_pct":2.5,"interest_dates":"09-Mar, 09-Sep","maturity_date":"2029-03-09","maturity_year":"2029","annual_gross":2913.76,"face_value":116550,"grams":25,"qty":25,"qty_unit":"Grams","unit_fv":4662},{"id":"h_12","portfolio":"Pramesh R Shah","asset_name":"Sovereign Gold Bond 2.50% Nov 2026 Sr-III 2018-19 (IN0020180314)","asset_type":"SGB Gold","isin":"IN0020180314","coupon_pct":2.5,"interest_dates":"13-May, 13-Nov","maturity_date":"2026-11-13","maturity_year":"2026","annual_gross":557.02,"face_value":22281,"grams":7,"qty":7,"qty_unit":"Grams","unit_fv":3183},{"id":"h_13","portfolio":"Pramesh R Shah","asset_name":"UP POWER CORPORATION","asset_type":"State Guaranteed Bond","isin":"INE540P07269","coupon_pct":9.75,"interest_dates":"20-Jan, 20-Apr, 20-Jul, 20-Oct","maturity_date":"2027-10-20","maturity_year":"2027","annual_gross":97502,"face_value":1000000,"grams":0,"qty":1,"qty_unit":"Debentures","unit_fv":1000000},{"id":"h_14","portfolio":"PRS HUF","asset_name":"Sovereign Gold Bond 2.50% DEC 2029 SR-VIII 2021-22 (IN0020210228)","asset_type":"SGB Gold","isin":"IN0020210228","coupon_pct":2.5,"interest_dates":"07-Jun, 07-Dec","maturity_date":"2029-12-07","maturity_year":"2029","annual_gross":1197.76,"face_value":47910,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":4791},{"id":"h_15","portfolio":"PRS HUF","asset_name":"Sovereign Gold Bond 2.50% JAN 2028 Sr-VIII 2019-20 (IN0020190537)","asset_type":"SGB Gold","isin":"IN0020190537","coupon_pct":2.5,"interest_dates":"21-Jan, 21-Jul","maturity_date":"2028-01-21","maturity_year":"2028","annual_gross":502,"face_value":20080,"grams":5,"qty":5,"qty_unit":"Grams","unit_fv":4016},{"id":"h_16","portfolio":"PRS HUF","asset_name":"Sovereign Gold Bond 2.50% JUL 2028 SR-IV 2020-21 (IN0020200146)","asset_type":"SGB Gold","isin":"IN0020200146","coupon_pct":2.5,"interest_dates":"14-Jan, 14-Jul","maturity_date":"2028-07-14","maturity_year":"2028","annual_gross":303.25,"face_value":24260,"grams":5,"qty":5,"qty_unit":"Grams","unit_fv":4852},{"id":"h_17","portfolio":"PRS HUF","asset_name":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","asset_type":"SGB Gold","isin":"IN0020210111","coupon_pct":2.5,"interest_dates":"20-Jan, 20-Jul","maturity_date":"2029-07-20","maturity_year":"2029","annual_gross":1201.76,"face_value":48070,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":4807},{"id":"h_18","portfolio":"PRS HUF","asset_name":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","asset_type":"SGB Gold","isin":"IN0020210061","coupon_pct":2.5,"interest_dates":"01-Jun, 01-Dec","maturity_date":"2029-06-01","maturity_year":"2029","annual_gross":1210.5,"face_value":48420,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":4842},{"id":"h_19","portfolio":"SAAHIL P SHAH","asset_name":"7.72 GS 2055","asset_type":"Govt Bond (G-Sec)","isin":"IN0020150077","coupon_pct":7.72,"interest_dates":"26-Apr, 26-Oct","maturity_date":"2055-10-26","maturity_year":"2055","annual_gross":6021.6,"face_value":78000,"grams":0,"qty":780,"qty_unit":"Units","unit_fv":100},{"id":"h_20","portfolio":"SAAHIL P SHAH","asset_name":"G-Sec 6.10% GS 2031 (ISIN IN0020210095)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020210095","coupon_pct":6.1,"interest_dates":"12-Jan, 12-Jul","maturity_date":"2031-07-12","maturity_year":"2031","annual_gross":3050,"face_value":50000,"grams":0,"qty":500,"qty_unit":"Units","unit_fv":100},{"id":"h_21","portfolio":"SAAHIL P SHAH","asset_name":"G-Sec 6.67% GS 2035 (ISIN IN0020210152)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020210152","coupon_pct":6.67,"interest_dates":"15-Jun, 15-Dec","maturity_date":"2035-12-15","maturity_year":"2035","annual_gross":20677,"face_value":310000,"grams":0,"qty":3100,"qty_unit":"Units","unit_fv":100},{"id":"h_22","portfolio":"SAAHIL P SHAH","asset_name":"G-Sec 6.67% GS 2050 (ISIN IN0020200252)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020200252","coupon_pct":6.67,"interest_dates":"17-Jun, 17-Dec","maturity_date":"2050-12-17","maturity_year":"2050","annual_gross":6670,"face_value":100000,"grams":0,"qty":1000,"qty_unit":"Units","unit_fv":100},{"id":"h_23","portfolio":"SAAHIL P SHAH","asset_name":"G-Sec 7.30% GS 2053 (ISIN IN0020230051)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020230051","coupon_pct":7.3,"interest_dates":"19-Jun, 19-Dec","maturity_date":"2053-06-19","maturity_year":"2053","annual_gross":73000,"face_value":1000000,"grams":0,"qty":10000,"qty_unit":"Units","unit_fv":100},{"id":"h_24","portfolio":"SAAHIL P SHAH","asset_name":"G-Sec 7.36% GS 2052 (ISIN IN0020220086)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020220086","coupon_pct":7.36,"interest_dates":"12-Mar, 12-Sep","maturity_date":"2052-09-12","maturity_year":"2052","annual_gross":73600,"face_value":1000000,"grams":0,"qty":10000,"qty_unit":"Units","unit_fv":100},{"id":"h_25","portfolio":"SAAHIL P SHAH","asset_name":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020220029","coupon_pct":7.54,"interest_dates":"23-May, 23-Nov","maturity_date":"2036-05-23","maturity_year":"2036","annual_gross":82186,"face_value":1090000,"grams":0,"qty":10900,"qty_unit":"Units","unit_fv":100},{"id":"h_26","portfolio":"SAAHIL P SHAH","asset_name":"Sovereign Gold Bond 2.50% AUG 2028 SR-V 2020-21 (IN0020200161)","asset_type":"SGB Gold","isin":"IN0020200161","coupon_pct":2.5,"interest_dates":"11-Feb, 11-Aug","maturity_date":"2028-08-11","maturity_year":"2028","annual_gross":2000.24,"face_value":80010,"grams":15,"qty":15,"qty_unit":"Grams","unit_fv":5334},{"id":"h_27","portfolio":"SAAHIL P SHAH","asset_name":"Sovereign Gold Bond 2.50% DEC 2029 SR-VIII 2021-22 (IN0020210228)","asset_type":"SGB Gold","isin":"IN0020210228","coupon_pct":2.5,"interest_dates":"07-Jun, 07-Dec","maturity_date":"2029-12-07","maturity_year":"2029","annual_gross":3593.26,"face_value":143730,"grams":30,"qty":30,"qty_unit":"Grams","unit_fv":4791},{"id":"h_28","portfolio":"SAAHIL P SHAH","asset_name":"Sovereign Gold Bond 2.50% JAN 2029 SR-X 2020-21 (IN0020200385)","asset_type":"SGB Gold","isin":"IN0020200385","coupon_pct":2.5,"interest_dates":"19-Jan, 19-Jul","maturity_date":"2029-01-19","maturity_year":"2029","annual_gross":638,"face_value":25520,"grams":5,"qty":5,"qty_unit":"Grams","unit_fv":5104},{"id":"h_29","portfolio":"SAAHIL P SHAH","asset_name":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","asset_type":"SGB Gold","isin":"IN0020210111","coupon_pct":2.5,"interest_dates":"20-Jan, 20-Jul","maturity_date":"2029-07-20","maturity_year":"2029","annual_gross":2042.98,"face_value":81719,"grams":17,"qty":17,"qty_unit":"Grams","unit_fv":4807},{"id":"h_30","portfolio":"SAAHIL P SHAH","asset_name":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","asset_type":"SGB Gold","isin":"IN0020210061","coupon_pct":2.5,"interest_dates":"01-Jun, 01-Dec","maturity_date":"2029-06-01","maturity_year":"2029","annual_gross":242.1,"face_value":9684,"grams":2,"qty":2,"qty_unit":"Grams","unit_fv":4842},{"id":"h_31","portfolio":"SAAHIL P SHAH","asset_name":"Sovereign Gold Bond 2.50% JUNE 2029 SR-III 2021-22 (IN0020210087)","asset_type":"SGB Gold","isin":"IN0020210087","coupon_pct":2.5,"interest_dates":"08-Jun, 08-Dec","maturity_date":"2029-06-08","maturity_year":"2029","annual_gross":1222.26,"face_value":48890,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":4889},{"id":"h_32","portfolio":"SAAHIL P SHAH","asset_name":"Sovereign Gold Bond 2.50% MAY 2029 SR-I 2021-22 (IN0020210053)","asset_type":"SGB Gold","isin":"IN0020210053","coupon_pct":2.5,"interest_dates":"25-May, 25-Nov","maturity_date":"2029-05-25","maturity_year":"2029","annual_gross":1194.26,"face_value":47770,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":4777},{"id":"h_33","portfolio":"SAAHIL P SHAH","asset_name":"Sovereign Gold Bond 2.50% NOV 2029 SR-VII 2021-22 (IN0020210178)","asset_type":"SGB Gold","isin":"IN0020210178","coupon_pct":2.5,"interest_dates":"02-May, 02-Nov","maturity_date":"2029-11-02","maturity_year":"2029","annual_gross":1785.38,"face_value":71415,"grams":15,"qty":15,"qty_unit":"Grams","unit_fv":4761},{"id":"h_34","portfolio":"UNNATI P SHAH","asset_name":"G-Sec 6.10% GS 2031 (ISIN IN0020210095)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020210095","coupon_pct":6.1,"interest_dates":"12-Jan, 12-Jul","maturity_date":"2031-07-12","maturity_year":"2031","annual_gross":6100,"face_value":100000,"grams":0,"qty":1000,"qty_unit":"Units","unit_fv":100},{"id":"h_35","portfolio":"UNNATI P SHAH","asset_name":"G-Sec 6.67% GS 2035 (ISIN IN0020210152)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020210152","coupon_pct":6.67,"interest_dates":"15-Jun, 15-Dec","maturity_date":"2035-12-15","maturity_year":"2035","annual_gross":46023,"face_value":690000,"grams":0,"qty":6900,"qty_unit":"Units","unit_fv":100},{"id":"h_36","portfolio":"UNNATI P SHAH","asset_name":"G-Sec 6.67% GS 2050 (ISIN IN0020200252)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020200252","coupon_pct":6.67,"interest_dates":"17-Jun, 17-Dec","maturity_date":"2050-12-17","maturity_year":"2050","annual_gross":30682,"face_value":460000,"grams":0,"qty":4600,"qty_unit":"Units","unit_fv":100},{"id":"h_37","portfolio":"UNNATI P SHAH","asset_name":"G-Sec 6.99% GS 2051 (ISIN IN0020210194)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020210194","coupon_pct":6.99,"interest_dates":"15-Jun, 15-Dec","maturity_date":"2051-12-15","maturity_year":"2051","annual_gross":69900,"face_value":1000000,"grams":0,"qty":10000,"qty_unit":"Units","unit_fv":100},{"id":"h_38","portfolio":"UNNATI P SHAH","asset_name":"G-Sec 7.30% GS 2053 (ISIN IN0020230051)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020230051","coupon_pct":7.3,"interest_dates":"19-Jun, 19-Dec","maturity_date":"2053-06-19","maturity_year":"2053","annual_gross":73000,"face_value":1000000,"grams":0,"qty":10000,"qty_unit":"Units","unit_fv":100},{"id":"h_39","portfolio":"UNNATI P SHAH","asset_name":"G-Sec 7.34% GS 2064 (ISIN IN0020240035)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020240035","coupon_pct":7.34,"interest_dates":"22-Apr, 22-Oct","maturity_date":"2064-04-22","maturity_year":"2064","annual_gross":73400.02,"face_value":1000000,"grams":0,"qty":10000,"qty_unit":"Units","unit_fv":100},{"id":"h_40","portfolio":"UNNATI P SHAH","asset_name":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","asset_type":"Govt Bond (G-Sec)","isin":"IN0020220029","coupon_pct":7.54,"interest_dates":"23-May, 23-Nov","maturity_date":"2036-05-23","maturity_year":"2036","annual_gross":107068,"face_value":1420000,"grams":0,"qty":14200,"qty_unit":"Units","unit_fv":100},{"id":"h_41","portfolio":"UNNATI P SHAH","asset_name":"Sovereign Gold Bond 2.5% MAR 2028 Sr-X 2019-20 (ISIN IN0020190552)","asset_type":"SGB Gold","isin":"IN0020190552","coupon_pct":2.5,"interest_dates":"11-Mar, 11-Sep","maturity_date":"2028-03-11","maturity_year":"2028","annual_gross":852,"face_value":34080,"grams":8,"qty":8,"qty_unit":"Grams","unit_fv":4260},{"id":"h_42","portfolio":"UNNATI P SHAH","asset_name":"Sovereign Gold Bond 2.50% JAN 2029 SR-IX 2020-21 (IN0020200377)","asset_type":"SGB Gold","isin":"IN0020200377","coupon_pct":2.5,"interest_dates":"05-Jan, 05-Jul","maturity_date":"2029-01-05","maturity_year":"2029","annual_gross":3125,"face_value":125000,"grams":25,"qty":25,"qty_unit":"Grams","unit_fv":5000},{"id":"h_43","portfolio":"UNNATI P SHAH","asset_name":"Sovereign Gold Bond 2.50% JUN 2028 SR-III 2020-21 (ISIN IN0020200104)","asset_type":"SGB Gold","isin":"IN0020200104","coupon_pct":2.5,"interest_dates":"16-Jun, 16-Dec","maturity_date":"2028-06-16","maturity_year":"2028","annual_gross":1169.24,"face_value":46770,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":4677},{"id":"h_44","portfolio":"UNNATI P SHAH","asset_name":"Sovereign Gold Bond 2.50% Jan 2026 Sr-XIV 2017-18 (IN0020170166)","asset_type":"SGB Gold","isin":"IN0020170166","coupon_pct":2.5,"interest_dates":"01-Jan, 01-Jul","maturity_date":"2026-01-01","maturity_year":"2026","annual_gross":720.24,"face_value":28810,"grams":10,"qty":10,"qty_unit":"Grams","unit_fv":2881},{"id":"h_45","portfolio":"UNNATI P SHAH","asset_name":"Sovereign Gold Bond 2.50% Nov 2026 Sr-III 2018-19 (IN0020180314)","asset_type":"SGB Gold","isin":"IN0020180314","coupon_pct":2.5,"interest_dates":"13-May, 13-Nov","maturity_date":"2026-11-13","maturity_year":"2026","annual_gross":397.86,"face_value":15915,"grams":5,"qty":5,"qty_unit":"Grams","unit_fv":3183},{"id":"h_46","portfolio":"UNNATI P SHAH","asset_name":"Sovereign Gold Bond 2.50% SEP 2029 SR-VI 2021-22 (IN0020210145)","asset_type":"SGB Gold","isin":"IN0020210145","coupon_pct":2.5,"interest_dates":"07-Mar, 07-Sep","maturity_date":"2029-09-07","maturity_year":"2029","annual_gross":591.5,"face_value":23660,"grams":5,"qty":5,"qty_unit":"Grams","unit_fv":4732}];
+    const SEED_TX = [{"id":"tx_2627_1","date":"2026-04-17","holder":"Pramesh R Shah","asset":"UP POWER CORPORATION","type":"NCD/Debentures","amount":23507,"maturity_date":"2027-10-20","interest_dates":"20-Jan, 20-Apr, 20-Jul, 20-Oct","isin":"INE540P07269","coupon":9.75,"grams":0,"face_value":1000000},{"id":"tx_2627_2","date":"2026-04-22","holder":"UNNATI P SHAH","asset":"G-Sec 7.34% GS 2064 (ISIN IN0020240035)","type":"Traded Bonds","amount":36700.01,"maturity_date":"2064-04-22","interest_dates":"22-Apr, 22-Oct","isin":"IN0020240035","coupon":7.34,"grams":0,"face_value":1000000},{"id":"tx_2627_3","date":"2026-04-22","holder":"Pramesh R Shah","asset":"G-Sec 7.34% GS 2064 (ISIN IN0020240035)","type":"Traded Bonds","amount":36700,"maturity_date":"2064-04-22","interest_dates":"22-Apr, 22-Oct","isin":"IN0020240035","coupon":7.34,"grams":0,"face_value":1000000},{"id":"tx_2627_4","date":"2026-04-28","holder":"SAAHIL P SHAH","asset":"7.72 GS 2055","type":"Deposits/Loans","amount":3010.8,"maturity_date":"2055-10-26","interest_dates":"26-Apr, 26-Oct","isin":"IN0020150077","coupon":7.72,"grams":0,"face_value":78000},{"id":"tx_2627_5","date":"2026-05-02","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% NOV 2029 SR-VII 2021-22 (IN0020210178)","type":"Traded Bonds","amount":892.69,"maturity_date":"2029-11-02","interest_dates":"02-May, 02-Nov","isin":"IN0020210178","coupon":2.5,"grams":15,"face_value":71415},{"id":"tx_2627_6","date":"2026-05-13","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.50% Nov 2026 Sr-III 2018-19 (IN0020180314)","type":"Traded Bonds","amount":198.93,"maturity_date":"2026-11-13","interest_dates":"13-May, 13-Nov","isin":"IN0020180314","coupon":2.5,"grams":5,"face_value":15915},{"id":"tx_2627_7","date":"2026-05-13","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% Nov 2026 Sr-III 2018-19 (IN0020180314)","type":"Traded Bonds","amount":278.51,"maturity_date":"2026-11-13","interest_dates":"13-May, 13-Nov","isin":"IN0020180314","coupon":2.5,"grams":7,"face_value":22281},{"id":"tx_2627_8","date":"2026-05-23","holder":"Pramesh R Shah","asset":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","type":"Traded Bonds","amount":37700,"maturity_date":"2036-05-23","interest_dates":"23-May, 23-Nov","isin":"IN0020220029","coupon":7.54,"grams":0,"face_value":1000000},{"id":"tx_2627_9","date":"2026-05-24","holder":"SAAHIL P SHAH","asset":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","type":"Traded Bonds","amount":41093,"maturity_date":"2036-05-23","interest_dates":"23-May, 23-Nov","isin":"IN0020220029","coupon":7.54,"grams":0,"face_value":1090000},{"id":"tx_2627_10","date":"2026-05-24","holder":"UNNATI P SHAH","asset":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","type":"Traded Bonds","amount":53534,"maturity_date":"2036-05-23","interest_dates":"23-May, 23-Nov","isin":"IN0020220029","coupon":7.54,"grams":0,"face_value":1420000},{"id":"tx_2627_11","date":"2026-05-24","holder":"Krisha Saahil Shah","asset":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","type":"Traded Bonds","amount":15080,"maturity_date":"2036-05-23","interest_dates":"23-May, 23-Nov","isin":"IN0020220029","coupon":7.54,"grams":0,"face_value":400000},{"id":"tx_2627_12","date":"2026-05-27","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% MAY 2029 SR-I 2021-22 (IN0020210053)","type":"Traded Bonds","amount":597.13,"maturity_date":"2029-05-25","interest_dates":"25-May, 25-Nov","isin":"IN0020210053","coupon":2.5,"grams":10,"face_value":47770},{"id":"tx_2627_13","date":"2026-06-01","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","type":"Traded Bonds","amount":1452.6,"maturity_date":"2029-06-01","interest_dates":"01-Jun, 01-Dec","isin":"IN0020210061","coupon":2.5,"grams":24,"face_value":116208},{"id":"tx_2627_14","date":"2026-06-02","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","type":"Traded Bonds","amount":121.05,"maturity_date":"2029-06-01","interest_dates":"01-Jun, 01-Dec","isin":"IN0020210061","coupon":2.5,"grams":2,"face_value":9684},{"id":"tx_2627_15","date":"2026-06-02","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","type":"Traded Bonds","amount":605.25,"maturity_date":"2029-06-01","interest_dates":"01-Jun, 01-Dec","isin":"IN0020210061","coupon":2.5,"grams":10,"face_value":48420},{"id":"tx_2627_16","date":"2026-06-07","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% DEC 2029 SR-VIII 2021-22 (IN0020210228)","type":"Traded Bonds","amount":598.88,"maturity_date":"2029-12-07","interest_dates":"07-Jun, 07-Dec","isin":"IN0020210228","coupon":2.5,"grams":10,"face_value":47910},{"id":"tx_2627_17","date":"2026-06-09","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% JUNE 2029 SR-III 2021-22 (IN0020210087)","type":"Traded Bonds","amount":611.13,"maturity_date":"2029-06-08","interest_dates":"08-Jun, 08-Dec","isin":"IN0020210087","coupon":2.5,"grams":10,"face_value":48890},{"id":"tx_2627_18","date":"2026-06-09","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% DEC 2029 SR-VIII 2021-22 (IN0020210228)","type":"Traded Bonds","amount":1796.63,"maturity_date":"2029-12-07","interest_dates":"07-Jun, 07-Dec","isin":"IN0020210228","coupon":2.5,"grams":30,"face_value":143730},{"id":"tx_2627_19","date":"2026-06-09","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% DEC 2029 SR-VIII 2021-22 (IN0020210228)","type":"Traded Bonds","amount":598.88,"maturity_date":"2029-12-07","interest_dates":"07-Jun, 07-Dec","isin":"IN0020210228","coupon":2.5,"grams":10,"face_value":47910},{"id":"tx_2627_20","date":"2026-06-15","holder":"SAAHIL P SHAH","asset":"G-Sec 6.67% GS 2035 (ISIN IN0020210152)","type":"Traded Bonds","amount":10338.5,"maturity_date":"2035-12-15","interest_dates":"15-Jun, 15-Dec","isin":"IN0020210152","coupon":6.67,"grams":0,"face_value":310000},{"id":"tx_2627_21","date":"2026-06-15","holder":"Krisha Saahil Shah","asset":"G-Sec 6.99% GS 2051 (ISIN IN0020210194)","type":"Traded Bonds","amount":1048.5,"maturity_date":"2051-12-15","interest_dates":"15-Jun, 15-Dec","isin":"IN0020210194","coupon":6.99,"grams":0,"face_value":30000},{"id":"tx_2627_22","date":"2026-06-16","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.50% JUN 2028 SR-III 2020-21 (ISIN IN0020200104)","type":"Traded Bonds","amount":584.62,"maturity_date":"2028-06-16","interest_dates":"16-Jun, 16-Dec","isin":"IN0020200104","coupon":2.5,"grams":10,"face_value":46770},{"id":"tx_2627_23","date":"2026-06-16","holder":"UNNATI P SHAH","asset":"G-Sec 6.99% GS 2051 (ISIN IN0020210194)","type":"Traded Bonds","amount":34950,"maturity_date":"2051-12-15","interest_dates":"15-Jun, 15-Dec","isin":"IN0020210194","coupon":6.99,"grams":0,"face_value":1000000},{"id":"tx_2627_24","date":"2026-06-16","holder":"UNNATI P SHAH","asset":"G-Sec 6.67% GS 2035 (ISIN IN0020210152)","type":"Traded Bonds","amount":23011.5,"maturity_date":"2035-12-15","interest_dates":"15-Jun, 15-Dec","isin":"IN0020210152","coupon":6.67,"grams":0,"face_value":690000},{"id":"tx_2627_25","date":"2026-06-17","holder":"SAAHIL P SHAH","asset":"G-Sec 6.67% GS 2050 (ISIN IN0020200252)","type":"Traded Bonds","amount":3335,"maturity_date":"2050-12-17","interest_dates":"17-Jun, 17-Dec","isin":"IN0020200252","coupon":6.67,"grams":0,"face_value":100000},{"id":"tx_2627_26","date":"2026-06-18","holder":"UNNATI P SHAH","asset":"G-Sec 6.67% GS 2050 (ISIN IN0020200252)","type":"Traded Bonds","amount":15341,"maturity_date":"2050-12-17","interest_dates":"17-Jun, 17-Dec","isin":"IN0020200252","coupon":6.67,"grams":0,"face_value":460000},{"id":"tx_2627_27","date":"2026-06-19","holder":"SAAHIL P SHAH","asset":"G-Sec 7.30% GS 2053 (ISIN IN0020230051)","type":"Traded Bonds","amount":36500,"maturity_date":"2053-06-19","interest_dates":"19-Jun, 19-Dec","isin":"IN0020230051","coupon":7.3,"grams":0,"face_value":1000000},{"id":"tx_2627_28","date":"2026-06-19","holder":"UNNATI P SHAH","asset":"G-Sec 7.30% GS 2053 (ISIN IN0020230051)","type":"Traded Bonds","amount":36500,"maturity_date":"2053-06-19","interest_dates":"19-Jun, 19-Dec","isin":"IN0020230051","coupon":7.3,"grams":0,"face_value":1000000},{"id":"tx_2627_30","date":"2026-07-05","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.50% JAN 2029 SR-IX 2020-21 (IN0020200377)","type":"Traded Bonds","amount":1562.5,"maturity_date":"2029-01-05","interest_dates":"05-Jan, 05-Jul","isin":"IN0020200377","coupon":2.5,"grams":25,"face_value":125000},{"id":"tx_2627_31","date":"2026-07-14","holder":"SAAHIL P SHAH","asset":"G-Sec 6.10% GS 2031 (ISIN IN0020210095)","type":"Traded Bonds","amount":1525,"maturity_date":"2031-07-12","interest_dates":"12-Jan, 12-Jul","isin":"IN0020210095","coupon":6.1,"grams":0,"face_value":50000},{"id":"tx_2627_32","date":"2026-07-14","holder":"UNNATI P SHAH","asset":"G-Sec 6.10% GS 2031 (ISIN IN0020210095)","type":"Traded Bonds","amount":3050,"maturity_date":"2031-07-12","interest_dates":"12-Jan, 12-Jul","isin":"IN0020210095","coupon":6.1,"grams":0,"face_value":100000},{"id":"tx_2627_33","date":"2026-07-18","holder":"Pramesh R Shah","asset":"UP POWER CORPORATION","type":"NCD/Debentures","amount":24309,"maturity_date":"2027-10-20","interest_dates":"20-Jan, 20-Apr, 20-Jul, 20-Oct","isin":"INE540P07269","coupon":9.75,"grams":0,"face_value":1000000},{"id":"tx_2627_34","date":"2026-07-19","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% JAN 2029 SR-X 2020-21 (IN0020200385)","type":"Traded Bonds","amount":319,"maturity_date":"2029-01-19","interest_dates":"19-Jan, 19-Jul","isin":"IN0020200385","coupon":2.5,"grams":5,"face_value":25520},{"id":"tx_2627_35","date":"2026-07-20","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","type":"Traded Bonds","amount":1021.49,"maturity_date":"2029-07-20","interest_dates":"20-Jan, 20-Jul","isin":"IN0020210111","coupon":2.5,"grams":17,"face_value":81719},{"id":"tx_2627_36","date":"2026-07-20","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","type":"Traded Bonds","amount":300.44,"maturity_date":"2029-07-20","interest_dates":"20-Jan, 20-Jul","isin":"IN0020210111","coupon":2.5,"grams":5,"face_value":24035},{"id":"tx_2627_37","date":"2026-07-21","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% JAN 2028 Sr-VIII 2019-20 (IN0020190537)","type":"Traded Bonds","amount":251,"maturity_date":"2028-01-21","interest_dates":"21-Jan, 21-Jul","isin":"IN0020190537","coupon":2.5,"grams":5,"face_value":20080},{"id":"tx_2627_38","date":"2026-07-21","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","type":"Traded Bonds","amount":600.88,"maturity_date":"2029-07-20","interest_dates":"20-Jan, 20-Jul","isin":"IN0020210111","coupon":2.5,"grams":10,"face_value":48070},{"id":"tx_2627_40","date":"2026-08-11","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% AUG 2028 SR-V 2020-21 (IN0020200161)","type":"Traded Bonds","amount":1000.12,"maturity_date":"2028-08-11","interest_dates":"11-Feb, 11-Aug","isin":"IN0020200161","coupon":2.5,"grams":15,"face_value":80010},{"id":"tx_2627_41","date":"2026-09-09","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.50% SEP 2029 SR-VI 2021-22 (IN0020210145)","type":"Traded Bonds","amount":295.75,"maturity_date":"2029-09-07","interest_dates":"07-Mar, 07-Sep","isin":"IN0020210145","coupon":2.5,"grams":5,"face_value":23660},{"id":"tx_2627_42","date":"2026-09-09","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% MAR 2029 SR-XII 2020-21 (IN0020200427)","type":"Traded Bonds","amount":1456.88,"maturity_date":"2029-03-09","interest_dates":"09-Mar, 09-Sep","isin":"IN0020200427","coupon":2.5,"grams":25,"face_value":116550},{"id":"tx_2627_43","date":"2026-09-11","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.5% MAR 2028 Sr-X 2019-20 (ISIN IN0020190552)","type":"Traded Bonds","amount":426,"maturity_date":"2028-03-11","interest_dates":"11-Mar, 11-Sep","isin":"IN0020190552","coupon":2.5,"grams":8,"face_value":34080},{"id":"tx_2627_44","date":"2026-09-12","holder":"SAAHIL P SHAH","asset":"G-Sec 7.36% GS 2052 (ISIN IN0020220086)","type":"Traded Bonds","amount":36800,"maturity_date":"2052-09-12","interest_dates":"12-Mar, 12-Sep","isin":"IN0020220086","coupon":7.36,"grams":0,"face_value":1000000},{"id":"tx_2627_45","date":"2026-10-18","holder":"Pramesh R Shah","asset":"UP POWER CORPORATION","type":"NCD/Debentures","amount":25110,"maturity_date":"2027-10-20","interest_dates":"20-Jan, 20-Apr, 20-Jul, 20-Oct","isin":"INE540P07269","coupon":9.75,"grams":0,"face_value":1000000},{"id":"tx_2627_46","date":"2026-10-23","holder":"UNNATI P SHAH","asset":"G-Sec 7.34% GS 2064 (ISIN IN0020240035)","type":"Traded Bonds","amount":36700.01,"maturity_date":"2064-04-22","interest_dates":"22-Apr, 22-Oct","isin":"IN0020240035","coupon":7.34,"grams":0,"face_value":1000000},{"id":"tx_2627_47","date":"2026-10-23","holder":"Pramesh R Shah","asset":"G-Sec 7.34% GS 2064 (ISIN IN0020240035)","type":"Traded Bonds","amount":36700,"maturity_date":"2064-04-22","interest_dates":"22-Apr, 22-Oct","isin":"IN0020240035","coupon":7.34,"grams":0,"face_value":1000000},{"id":"tx_2627_48","date":"2026-10-28","holder":"SAAHIL P SHAH","asset":"7.72 GS 2055","type":"Deposits/Loans","amount":3010.8,"maturity_date":"2055-10-26","interest_dates":"26-Apr, 26-Oct","isin":"IN0020150077","coupon":7.72,"grams":0,"face_value":78000},{"id":"tx_2627_49","date":"2026-11-10","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% NOV 2029 SR-VII 2021-22 (IN0020210178)","type":"Traded Bonds","amount":892.69,"maturity_date":"2029-11-02","interest_dates":"02-May, 02-Nov","isin":"IN0020210178","coupon":2.5,"grams":15,"face_value":71415},{"id":"tx_2627_50","date":"2026-11-13","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.50% Nov 2026 Sr-III 2018-19 (IN0020180314)","type":"Traded Bonds","amount":198.93,"maturity_date":"2026-11-13","interest_dates":"13-May, 13-Nov","isin":"IN0020180314","coupon":2.5,"grams":5,"face_value":15915},{"id":"tx_2627_51","date":"2026-11-13","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% Nov 2026 Sr-III 2018-19 (IN0020180314)","type":"Traded Bonds","amount":278.51,"maturity_date":"2026-11-13","interest_dates":"13-May, 13-Nov","isin":"IN0020180314","coupon":2.5,"grams":7,"face_value":22281},{"id":"tx_2627_52","date":"2026-11-24","holder":"SAAHIL P SHAH","asset":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","type":"Traded Bonds","amount":41093,"maturity_date":"2036-05-23","interest_dates":"23-May, 23-Nov","isin":"IN0020220029","coupon":7.54,"grams":0,"face_value":1090000},{"id":"tx_2627_53","date":"2026-11-24","holder":"UNNATI P SHAH","asset":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","type":"Traded Bonds","amount":53534,"maturity_date":"2036-05-23","interest_dates":"23-May, 23-Nov","isin":"IN0020220029","coupon":7.54,"grams":0,"face_value":1420000},{"id":"tx_2627_54","date":"2026-11-24","holder":"Pramesh R Shah","asset":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","type":"Traded Bonds","amount":37700,"maturity_date":"2036-05-23","interest_dates":"23-May, 23-Nov","isin":"IN0020220029","coupon":7.54,"grams":0,"face_value":1000000},{"id":"tx_2627_55","date":"2026-11-24","holder":"Krisha Saahil Shah","asset":"G-Sec 7.54% GS 2036 (ISIN IN0020220029)","type":"Traded Bonds","amount":15080,"maturity_date":"2036-05-23","interest_dates":"23-May, 23-Nov","isin":"IN0020220029","coupon":7.54,"grams":0,"face_value":400000},{"id":"tx_2627_56","date":"2026-11-25","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% MAY 2029 SR-I 2021-22 (IN0020210053)","type":"Traded Bonds","amount":597.13,"maturity_date":"2029-05-25","interest_dates":"25-May, 25-Nov","isin":"IN0020210053","coupon":2.5,"grams":10,"face_value":47770},{"id":"tx_2627_57","date":"2026-12-01","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","type":"Traded Bonds","amount":121.05,"maturity_date":"2029-06-01","interest_dates":"01-Jun, 01-Dec","isin":"IN0020210061","coupon":2.5,"grams":2,"face_value":9684},{"id":"tx_2627_58","date":"2026-12-01","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","type":"Traded Bonds","amount":1452.6,"maturity_date":"2029-06-01","interest_dates":"01-Jun, 01-Dec","isin":"IN0020210061","coupon":2.5,"grams":24,"face_value":116208},{"id":"tx_2627_59","date":"2026-12-01","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% JUN 2029 SR-II 2021-22 (IN0020210061)","type":"Traded Bonds","amount":605.25,"maturity_date":"2029-06-01","interest_dates":"01-Jun, 01-Dec","isin":"IN0020210061","coupon":2.5,"grams":10,"face_value":48420},{"id":"tx_2627_60","date":"2026-12-08","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% JUNE 2029 SR-III 2021-22 (IN0020210087)","type":"Traded Bonds","amount":611.13,"maturity_date":"2029-06-08","interest_dates":"08-Jun, 08-Dec","isin":"IN0020210087","coupon":2.5,"grams":10,"face_value":48890},{"id":"tx_2627_61","date":"2026-12-08","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% DEC 2029 SR-VIII 2021-22 (IN0020210228)","type":"Traded Bonds","amount":1796.63,"maturity_date":"2029-12-07","interest_dates":"07-Jun, 07-Dec","isin":"IN0020210228","coupon":2.5,"grams":30,"face_value":143730},{"id":"tx_2627_62","date":"2026-12-08","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% JUN 2030 Sr-I 2022-23 (IN0020220045)","type":"Traded Bonds","amount":598.88,"maturity_date":"2030-06-28","interest_dates":"28-Jun, 28-Dec","isin":"IN0020220045","coupon":2.5,"grams":9,"face_value":45819},{"id":"tx_2627_63","date":"2026-12-08","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% DEC 2029 SR-VIII 2021-22 (IN0020210228)","type":"Traded Bonds","amount":598.88,"maturity_date":"2029-12-07","interest_dates":"07-Jun, 07-Dec","isin":"IN0020210228","coupon":2.5,"grams":10,"face_value":47910},{"id":"tx_2627_64","date":"2026-12-15","holder":"SAAHIL P SHAH","asset":"G-Sec 6.67% GS 2035 (ISIN IN0020210152)","type":"Traded Bonds","amount":10338.5,"maturity_date":"2035-12-15","interest_dates":"15-Jun, 15-Dec","isin":"IN0020210152","coupon":6.67,"grams":0,"face_value":310000},{"id":"tx_2627_65","date":"2026-12-15","holder":"UNNATI P SHAH","asset":"G-Sec 6.99% GS 2051 (ISIN IN0020210194)","type":"Traded Bonds","amount":34950,"maturity_date":"2051-12-15","interest_dates":"15-Jun, 15-Dec","isin":"IN0020210194","coupon":6.99,"grams":0,"face_value":1000000},{"id":"tx_2627_66","date":"2026-12-15","holder":"UNNATI P SHAH","asset":"G-Sec 6.67% GS 2035 (ISIN IN0020210152)","type":"Traded Bonds","amount":23011.5,"maturity_date":"2035-12-15","interest_dates":"15-Jun, 15-Dec","isin":"IN0020210152","coupon":6.67,"grams":0,"face_value":690000},{"id":"tx_2627_67","date":"2026-12-15","holder":"Krisha Saahil Shah","asset":"G-Sec 6.99% GS 2051 (ISIN IN0020210194)","type":"Traded Bonds","amount":1048.5,"maturity_date":"2051-12-15","interest_dates":"15-Jun, 15-Dec","isin":"IN0020210194","coupon":6.99,"grams":0,"face_value":30000},{"id":"tx_2627_68","date":"2026-12-16","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.50% JUN 2028 SR-III 2020-21 (ISIN IN0020200104)","type":"Traded Bonds","amount":584.62,"maturity_date":"2028-06-16","interest_dates":"16-Jun, 16-Dec","isin":"IN0020200104","coupon":2.5,"grams":10,"face_value":46770},{"id":"tx_2627_69","date":"2026-12-17","holder":"SAAHIL P SHAH","asset":"G-Sec 6.67% GS 2050 (ISIN IN0020200252)","type":"Traded Bonds","amount":3335,"maturity_date":"2050-12-17","interest_dates":"17-Jun, 17-Dec","isin":"IN0020200252","coupon":6.67,"grams":0,"face_value":100000},{"id":"tx_2627_70","date":"2026-12-17","holder":"UNNATI P SHAH","asset":"G-Sec 6.67% GS 2050 (ISIN IN0020200252)","type":"Traded Bonds","amount":15341,"maturity_date":"2050-12-17","interest_dates":"17-Jun, 17-Dec","isin":"IN0020200252","coupon":6.67,"grams":0,"face_value":460000},{"id":"tx_2627_71","date":"2026-12-19","holder":"SAAHIL P SHAH","asset":"G-Sec 7.30% GS 2053 (ISIN IN0020230051)","type":"Traded Bonds","amount":36500,"maturity_date":"2053-06-19","interest_dates":"19-Jun, 19-Dec","isin":"IN0020230051","coupon":7.3,"grams":0,"face_value":1000000},{"id":"tx_2627_72","date":"2026-12-19","holder":"UNNATI P SHAH","asset":"G-Sec 7.30% GS 2053 (ISIN IN0020230051)","type":"Traded Bonds","amount":36500,"maturity_date":"2053-06-19","interest_dates":"19-Jun, 19-Dec","isin":"IN0020230051","coupon":7.3,"grams":0,"face_value":1000000},{"id":"tx_2627_74","date":"2027-01-05","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.50% JAN 2029 SR-IX 2020-21 (IN0020200377)","type":"Traded Bonds","amount":1562.5,"maturity_date":"2029-01-05","interest_dates":"05-Jan, 05-Jul","isin":"IN0020200377","coupon":2.5,"grams":25,"face_value":125000},{"id":"tx_2627_75","date":"2027-01-12","holder":"SAAHIL P SHAH","asset":"G-Sec 6.10% GS 2031 (ISIN IN0020210095)","type":"Traded Bonds","amount":1525,"maturity_date":"2031-07-12","interest_dates":"12-Jan, 12-Jul","isin":"IN0020210095","coupon":6.1,"grams":0,"face_value":50000},{"id":"tx_2627_76","date":"2027-01-12","holder":"UNNATI P SHAH","asset":"G-Sec 6.10% GS 2031 (ISIN IN0020210095)","type":"Traded Bonds","amount":3050,"maturity_date":"2031-07-12","interest_dates":"12-Jan, 12-Jul","isin":"IN0020210095","coupon":6.1,"grams":0,"face_value":100000},{"id":"tx_2627_77","date":"2027-01-14","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% JUL 2028 SR-IV 2020-21 (IN0020200146)","type":"Traded Bonds","amount":303.25,"maturity_date":"2028-07-14","interest_dates":"14-Jan, 14-Jul","isin":"IN0020200146","coupon":2.5,"grams":5,"face_value":24260},{"id":"tx_2627_78","date":"2027-01-19","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% JAN 2029 SR-X 2020-21 (IN0020200385)","type":"Traded Bonds","amount":319,"maturity_date":"2029-01-19","interest_dates":"19-Jan, 19-Jul","isin":"IN0020200385","coupon":2.5,"grams":5,"face_value":25520},{"id":"tx_2627_79","date":"2027-01-20","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","type":"Traded Bonds","amount":1021.49,"maturity_date":"2029-07-20","interest_dates":"20-Jan, 20-Jul","isin":"IN0020210111","coupon":2.5,"grams":17,"face_value":81719},{"id":"tx_2627_80","date":"2027-01-20","holder":"Pramesh R Shah","asset":"UP POWER CORPORATION","type":"NCD/Debentures","amount":24576,"maturity_date":"2027-10-20","interest_dates":"20-Jan, 20-Apr, 20-Jul, 20-Oct","isin":"INE540P07269","coupon":9.75,"grams":0,"face_value":1000000},{"id":"tx_2627_81","date":"2027-01-20","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","type":"Traded Bonds","amount":300.44,"maturity_date":"2029-07-20","interest_dates":"20-Jan, 20-Jul","isin":"IN0020210111","coupon":2.5,"grams":5,"face_value":24035},{"id":"tx_2627_82","date":"2027-01-20","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% JUL 2029 SR-IV 2021-22 (IN0020210111)","type":"Traded Bonds","amount":600.88,"maturity_date":"2029-07-20","interest_dates":"20-Jan, 20-Jul","isin":"IN0020210111","coupon":2.5,"grams":10,"face_value":48070},{"id":"tx_2627_83","date":"2027-01-21","holder":"PRS HUF","asset":"Sovereign Gold Bond 2.50% JAN 2028 Sr-VIII 2019-20 (IN0020190537)","type":"Traded Bonds","amount":251,"maturity_date":"2028-01-21","interest_dates":"21-Jan, 21-Jul","isin":"IN0020190537","coupon":2.5,"grams":5,"face_value":20080},{"id":"tx_2627_85","date":"2027-02-11","holder":"SAAHIL P SHAH","asset":"Sovereign Gold Bond 2.50% AUG 2028 SR-V 2020-21 (IN0020200161)","type":"Traded Bonds","amount":1000.12,"maturity_date":"2028-08-11","interest_dates":"11-Feb, 11-Aug","isin":"IN0020200161","coupon":2.5,"grams":15,"face_value":80010},{"id":"tx_2627_86","date":"2027-03-07","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.50% SEP 2029 SR-VI 2021-22 (IN0020210145)","type":"Traded Bonds","amount":295.75,"maturity_date":"2029-09-07","interest_dates":"07-Mar, 07-Sep","isin":"IN0020210145","coupon":2.5,"grams":5,"face_value":23660},{"id":"tx_2627_87","date":"2027-03-09","holder":"Pramesh R Shah","asset":"Sovereign Gold Bond 2.50% MAR 2029 SR-XII 2020-21 (IN0020200427)","type":"Traded Bonds","amount":1456.88,"maturity_date":"2029-03-09","interest_dates":"09-Mar, 09-Sep","isin":"IN0020200427","coupon":2.5,"grams":25,"face_value":116550},{"id":"tx_2627_88","date":"2027-03-09","holder":"Krisha Saahil Shah","asset":"Sovereign Gold Bond 2.50% SEP 2028 SR-VI 2020-21 (IN0020200195)","type":"Traded Bonds","amount":639.62,"maturity_date":"2028-09-08","interest_dates":"08-Mar, 08-Sep","isin":"IN0020200195","coupon":2.5,"grams":10,"face_value":51170},{"id":"tx_2627_89","date":"2027-03-11","holder":"UNNATI P SHAH","asset":"Sovereign Gold Bond 2.5% MAR 2028 Sr-X 2019-20 (ISIN IN0020190552)","type":"Traded Bonds","amount":426,"maturity_date":"2028-03-11","interest_dates":"11-Mar, 11-Sep","isin":"IN0020190552","coupon":2.5,"grams":8,"face_value":34080},{"id":"tx_2627_90","date":"2027-03-12","holder":"SAAHIL P SHAH","asset":"G-Sec 7.36% GS 2052 (ISIN IN0020220086)","type":"Traded Bonds","amount":36800,"maturity_date":"2052-09-12","interest_dates":"12-Mar, 12-Sep","isin":"IN0020220086","coupon":7.36,"grams":0,"face_value":1000000}];
+    const SEED_INS = [{"id":"ins_1","holder":"SAAHIL P SHAH","insurer":"LIC of India","plan_name":"LIC Jeevan Labh (Plan 936)","policy_no":"POL-936-884192","sum_assured":1000000,"ppt_years":10,"inception_date":"2021-09-28","policy_term":16,"start_year":2021,"premium":67741,"next_due":"2026-09-28","due_day_month":"28-Sep","reminder_days":15,"frequency":"Yearly","status":"Active"}];
+    const DEFAULT_EXPENSES = [{"id": "exp_1", "title": "Torrent Power Electricity Bill", "holder": "Pramesh R Shah", "paid_from": "Pramesh Kotak", "category": "Utilities", "amount": 8500, "due_date": "2026-04-18", "is_recurring": true, "frequency": "Monthly", "bill_no": "TOR-2026-04-8891"}, {"id": "exp_2", "title": "Building Society Maintenance Q1", "holder": "PRS HUF", "paid_from": "PRS HUF Kotak", "category": "Society Maintenance", "amount": 18000, "due_date": "2026-04-05", "is_recurring": true, "frequency": "Quarterly", "bill_no": "MAINT-Q1-2026"}, {"id": "exp_3", "title": "CA Audit & Income Tax Retainer", "holder": "PRS HUF", "paid_from": "PRS HUF IDFC", "category": "Professional Fees", "amount": 25000, "due_date": "2026-07-15", "is_recurring": true, "frequency": "Yearly", "bill_no": "\u2014"}, {"id": "exp_4", "title": "Star Health Family Mediclaim", "holder": "SAAHIL P SHAH", "paid_from": "Saahil Kotak", "category": "Medical & Healthcare", "amount": 32000, "due_date": "2025-11-20", "is_recurring": true, "frequency": "Yearly", "bill_no": "MED-2025-901"}, {"id": "exp_5", "title": "Advance Property Tax Municipal", "holder": "UNNATI P SHAH", "paid_from": "Unnati IDFC", "category": "Taxes & Statutory", "amount": 14500, "due_date": "2025-06-10", "is_recurring": true, "frequency": "Yearly", "bill_no": "AMC-TAX-2025"}, {"id": "exp_6", "title": "Office High-Speed Broadband & Cloud", "holder": "Arjin", "paid_from": "Arjin Kotak", "category": "Subscriptions", "amount": 4200, "due_date": "2026-05-02", "is_recurring": true, "frequency": "Monthly", "bill_no": "FIBER-8812"}];
+    const DEFAULT_CATS = ['Utilities', 'Society Maintenance', 'Professional Fees', 'Medical & Healthcare', 'Taxes & Statutory', 'Subscriptions', 'General'];
+    const ALL_INDIAN_INSURERS = [
+    "LIC of India (Life Insurance Corporation)",
+    "HDFC Life Insurance",
+    "ICICI Prudential Life Insurance",
+    "SBI Life Insurance",
+    "Max Life Insurance",
+    "Bajaj Allianz Life Insurance",
+    "Tata AIA Life Insurance",
+    "Kotak Mahindra Life Insurance",
+    "Aditya Birla Sun Life Insurance",
+    "PNB MetLife India Insurance",
+    "Nippon Life India Insurance",
+    "Canara HSBC Life Insurance",
+    "IndiaFirst Life Insurance",
+    "Bandhan Life Insurance (Aegon Life)",
+    "Aviva Life Insurance",
+    "Ageas Federal Life Insurance",
+    "Bharti AXA Life Insurance",
+    "Edelweiss Tokio Life Insurance",
+    "Future Generali India Life Insurance",
+    "Pramerica Life Insurance",
+    "Shriram Life Insurance",
+    "Star Union Dai-ichi Life Insurance",
+    "Star Health & Allied Insurance",
+    "Care Health Insurance",
+    "Niva Bupa Health Insurance",
+    "Aditya Birla Health Insurance",
+    "ManipalCigna Health Insurance",
+    "HDFC ERGO General Insurance",
+    "ICICI Lombard General Insurance",
+    "Bajaj Allianz General Insurance",
+    "Tata AIG General Insurance",
+    "New India Assurance",
+    "United India Insurance",
+    "National Insurance Company",
+    "Oriental Insurance Company",
+    "SBI General Insurance",
+    "Go Digit General Insurance",
+    "Acko General Insurance"
+];
+    const DEFAULT_ACCS = [
+    "Pramesh Kotak",
+    "Pramesh IDFC",
+    "Unnati Kotak",
+    "Unnati IDFC",
+    "Saahil Kotak",
+    "Saahil IDFC",
+    "Krisha Kotak",
+    "Krisha IDFC",
+    "PRS HUF Kotak",
+    "PRS HUF IDFC",
+    "SPS HUF Kotak",
+    "SPS HUF IDFC",
+    "Arjin Kotak",
+    "Arjin IDFC"
+];
+
+    // ── Persistent Storage Accessors (Shared with Mobile App) ──
+    const _memStore = {};
+    function safeGet(key, defaultVal) {
+      try {
+        const val = localStorage.getItem(key);
+        if (!val) return defaultVal;
+        const parsed = JSON.parse(val);
+        if (Array.isArray(defaultVal)) {
+          if (!Array.isArray(parsed) || parsed.length === 0) return defaultVal;
+        }
+        return parsed || defaultVal;
+      } catch (e) {
+        return _memStore[key] || defaultVal;
+      }
+    }
+
+    function safeSet(key, val) {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (e) {
+        _memStore[key] = val;
+      }
+    }
+
+    function sanitizeBankAccounts(stored) {
+      if (!Array.isArray(stored) || stored.length === 0) return DEFAULT_ACCS;
+      const cleaned = stored.filter(a => {
+        if (a.includes('Kotak Mahindra Bank')) return false;
+        if (a.includes('IDFC FIRST Bank')) return false;
+        if (a.includes('HDFC Bank')) return false;
+        if (a.includes('Bank of Baroda')) return false;
+        if (a.includes('ICICI Bank')) return false;
+        if (a.includes('State Bank of India')) return false;
+        return true;
+      });
+      return Array.from(new Set([...DEFAULT_ACCS, ...cleaned]));
+    }
+
+    // State Variables
+    let holdings = safeGet('fc_holdings_v7', SEED_HOLDINGS);
+    let transactions = safeGet('fc_tx_v7', SEED_TX);
+    let insurance = safeGet('fc_ins_v7', SEED_INS);
+    let expenses = safeGet('fc_expenses_v7', DEFAULT_EXPENSES);
+    let expenseCategories = safeGet('fc_exp_cats_v7', DEFAULT_CATS);
+    let bankAccounts = sanitizeBankAccounts(safeGet('fc_bank_accs_v7', DEFAULT_ACCS));
+    let recdMap = safeGet('fc_recd_v7', {});
+    let paidMap = safeGet('fc_paid_v7', {});
+    let expPaidMap = safeGet('fc_exp_paid_v7', {});
+    let isPrivacyMode = safeGet('fc_privacy_v7', false);
+    let sgbMarketPrice = safeGet('fc_sgb_price', 9800);
+
+    // Filter & Navigation State
+    let currentHolder = 'All';
+    let currentTab = 'dashboard';
+    let inflowMode = 'month'; // 'month' or 'fy'
+    let activeMonthIdx = 0; // 0 = April 2026 ... 11 = March 2027
+    let outflowSubTab = 'all'; // 'all', 'insurance', 'expenses'
+    let outflowStatusFilter = 'all'; // 'all', 'pending', 'paid'
+    let expenseAnalyticsYear = 'all';
+    let searchQuery = '';
+
+    const HOLDERS = [
+      'All',
+      'Pramesh R Shah',
+      'UNNATI P SHAH',
+      'SAAHIL P SHAH',
+      'Krisha Saahil Shah',
+      'PRS HUF',
+      'SPS HUF',
+      'Arjin'
+    ];
+
+    const MONTH_LABELS = [
+      "April 2026", "May 2026", "June 2026",
+      "July 2026", "August 2026", "September 2026",
+      "October 2026", "November 2026", "December 2026",
+      "January 2027", "February 2027", "March 2027"
+    ];
+
+    const MONTH_KEYS = [
+      "2026-04", "2026-05", "2026-06",
+      "2026-07", "2026-08", "2026-09",
+      "2026-10", "2026-11", "2026-12",
+      "2027-01", "2027-02", "2027-03"
+    ];
+
+    // Formatters
+    function fmt(val) {
+      if (isPrivacyMode) return '••••••';
+      if (val === null || val === undefined || isNaN(val)) return '₹0';
+      return '₹' + Math.round(val).toLocaleString('en-IN');
+    }
+
+    function fmtExact(val) {
+      if (isPrivacyMode) return '••••••';
+      if (val === null || val === undefined || isNaN(val)) return '₹0.00';
+      return '₹' + Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function fmtShort(val) {
+      if (isPrivacyMode) return '••••••';
+      if (!val || isNaN(val)) return '₹0';
+      const abs = Math.abs(val);
+      if (abs >= 10000000) return '₹' + (val / 10000000).toFixed(2) + ' Cr';
+      if (abs >= 100000) return '₹' + (val / 100000).toFixed(2) + ' L';
+      if (abs >= 1000) return '₹' + (val / 1000).toFixed(1) + ' k';
+      return '₹' + Math.round(val).toLocaleString('en-IN');
+    }
+
+    function toDDMMYYYY(iso) {
+      if (!iso) return '';
+      const p = iso.split('-');
+      if (p.length === 3) return p[2] + '-' + p[1] + '-' + p[0];
+      return iso;
+    }
+
+    // Navigation Switcher
+    function switchNav(tabId) {
+      currentTab = tabId;
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById('nav-' + tabId);
+      if (activeEl) activeEl.classList.add('active');
+
+      const titles = {
+        'dashboard': { title: 'Dashboard Overview', sub: 'Consolidated Multi-Holder Family Treasury' },
+        'inflow': { title: 'Inflows & Coupons Ledger', sub: 'Coupon payouts, interest schedule & redemption flow' },
+        'outflow': { title: 'Outflows & Expenses', sub: 'Estimated vs actual commitments, insurance premiums & operations' },
+        'maturity': { title: 'Maturity by Year Schedule', sub: '15 Milestone Redemptions (2025–2064)' },
+        'insurance': { title: 'Insurance & Smart PPT', sub: 'Life & health coverage with smart PPT payment countdowns' },
+        'analytics': { title: 'Spending Analytics', sub: 'Multi-year category expenditure breakdown & statistics' },
+        'holdings': { title: 'Holdings & Bond Directory', sub: 'Portfolio assets, coupon dates, ISINs & exit options' }
+      };
+
+      const tInfo = titles[tabId] || titles['dashboard'];
+      document.getElementById('dynTopbarTitle').innerText = tInfo.title;
+      document.getElementById('dynTopbarSub').innerText = tInfo.sub;
+
+      render();
+      document.getElementById('mainCanvas').scrollTop = 0;
+    }
+
+    function selectMember(m) {
+      currentHolder = m;
+      render();
+    }
+
+    function handleSearch(val) {
+      searchQuery = (val || '').toLowerCase().trim();
+      render();
+    }
+
+    // ── Data Calculations ──
+    function getFilteredData() {
+      const fHoldings = holdings.filter(h => currentHolder === 'All' || h.portfolio.toUpperCase() === currentHolder.toUpperCase());
+      const fTx = transactions.filter(t => currentHolder === 'All' || t.holder.toUpperCase() === currentHolder.toUpperCase());
+      const fIns = insurance.filter(i => currentHolder === 'All' || i.holder.toUpperCase() === currentHolder.toUpperCase());
+      const fExp = expenses.filter(e => currentHolder === 'All' || e.holder.toUpperCase() === currentHolder.toUpperCase());
+
+      // Inflows Gross & Status
+      let totalInflows = 0;
+      let recdInflows = 0;
+      fTx.forEach(t => {
+        totalInflows += (t.amount || 0);
+        if (recdMap[t.id]) recdInflows += (t.amount || 0);
+      });
+      let pendingInflows = totalInflows - recdInflows;
+
+      // Outflows: Estimated vs Actual
+      let totalEstimatedOutflow = 0;
+      let totalActualOutflow = 0;
+
+      fIns.forEach(ins => {
+        const prem = Number(ins.premium) || 0;
+        totalEstimatedOutflow += prem;
+        if (paidMap[ins.id]) totalActualOutflow += prem;
+      });
+
+      fExp.forEach(exp => {
+        const amt = Number(exp.amount) || 0;
+        totalEstimatedOutflow += amt;
+        if (expPaidMap[exp.id]) totalActualOutflow += amt;
+      });
+
+      const netCashflow = totalInflows - totalEstimatedOutflow;
+
+      // SGB Totals
+      let sgbGrams = 0;
+      let sgbInvested = 0;
+      fHoldings.forEach(h => {
+        if (h.grams > 0) {
+          sgbGrams += h.grams;
+          sgbInvested += (h.face_value || 0);
+        }
+      });
+      const sgbCurrentVal = sgbGrams * sgbMarketPrice;
+      const sgbGain = sgbCurrentVal - sgbInvested;
+
+      return {
+        fHoldings, fTx, fIns, fExp,
+        totalInflows, recdInflows, pendingInflows,
+        totalEstimatedOutflow, totalActualOutflow,
+        netCashflow, sgbGrams, sgbInvested, sgbCurrentVal, sgbGain
+      };
+    }
+
+    // ── View Renderers ──
+
+    function renderMemberChips() {
+      const container = document.getElementById('memberChipsRow');
+      if (!container) return;
+      container.innerHTML = HOLDERS.map(h => `
+        <button class="member-chip ${currentHolder === h ? 'active' : ''}" onclick="selectMember('${h}')">
+          ${h === 'All' ? 'All Family' : h}
+        </button>
+      `).join('');
+    }
+
+    function render() {
+      renderMemberChips();
+      const data = getFilteredData();
+
+      // Update sidebar SGB mini stats
+      document.getElementById('sidebarGoldPrice').innerText = '₹' + sgbMarketPrice.toLocaleString('en-IN') + '/g';
+      document.getElementById('sidebarGoldGrams').innerText = data.sgbGrams + 'g Held';
+      document.getElementById('sidebarGoldVal').innerText = fmtShort(data.sgbCurrentVal);
+      document.getElementById('sidebarGoldSlider').value = sgbMarketPrice;
+
+      // Update badge counts
+      document.getElementById('badge-inflow-count').innerText = data.fTx.length;
+      document.getElementById('badge-outflow-count').innerText = data.fIns.length + data.fExp.length;
+      document.getElementById('badge-ins-count').innerText = data.fIns.length;
+
+      // Render Active Tab Canvas
+      const canvas = document.getElementById('canvasContainer');
+      if (currentTab === 'dashboard') {
+        canvas.innerHTML = renderDashboardView(data);
+      } else if (currentTab === 'inflow') {
+        canvas.innerHTML = renderInflowView(data);
+      } else if (currentTab === 'outflow') {
+        canvas.innerHTML = renderOutflowView(data);
+      } else if (currentTab === 'maturity') {
+        canvas.innerHTML = renderMaturityView(data);
+      } else if (currentTab === 'insurance') {
+        canvas.innerHTML = renderInsuranceView(data);
+      } else if (currentTab === 'analytics') {
+        canvas.innerHTML = renderAnalyticsView(data);
+      } else if (currentTab === 'holdings') {
+        canvas.innerHTML = renderHoldingsView(data);
+      }
+    }
+
+    // ── Dashboard View ──
+    function renderDashboardView(data) {
+      return `
+        <!-- 4-Column KPI Grid -->
+        <div class="kpi-grid">
+          <div class="kpi-card" onclick="switchNav('inflow')">
+            <div class="kpi-top">
+              <span class="kpi-lbl">Total Annual Inflow</span>
+              <div class="kpi-icon-circle inflow">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
+              </div>
+            </div>
+            <div>
+              <div class="kpi-val">${fmt(data.totalInflows)}</div>
+              <div class="kpi-sub">
+                <span style="color:var(--accent-mint-text)">Recd: ${fmt(data.recdInflows)}</span>
+                <span>•</span>
+                <span>Pend: ${fmt(data.pendingInflows)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card" onclick="switchNav('outflow')">
+            <div class="kpi-top">
+              <span class="kpi-lbl">Total Outflows (FY 26-27)</span>
+              <div class="kpi-icon-circle outflow">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6"/></svg>
+              </div>
+            </div>
+            <div>
+              <div class="kpi-val">${fmt(data.totalEstimatedOutflow)}</div>
+              <div class="kpi-sub">
+                <span style="color:var(--accent-mint-text)">Actual Paid: ${fmt(data.totalActualOutflow)}</span>
+                <span>(Estimated: ${fmtShort(data.totalEstimatedOutflow)})</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-lbl">Net Surplus / Cashflow</span>
+              <div class="kpi-icon-circle net">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+            </div>
+            <div>
+              <div class="kpi-val" style="color: ${data.netCashflow >= 0 ? 'var(--accent-mint-text)' : 'var(--accent-coral-text)'};">
+                ${data.netCashflow >= 0 ? '+' : ''}${fmt(data.netCashflow)}
+              </div>
+              <div class="kpi-sub">
+                <span>Inflows minus all commitments</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="kpi-card">
+            <div class="kpi-top">
+              <span class="kpi-lbl">SGB Gold Valuation</span>
+              <div class="kpi-icon-circle gold">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              </div>
+            </div>
+            <div>
+              <div class="kpi-val">${fmt(data.sgbCurrentVal)}</div>
+              <div class="kpi-sub">
+                <span>${data.sgbGrams} grams held</span>
+                <span>•</span>
+                <span style="color:var(--accent-mint-text)">+${fmt(data.sgbGain)} gain</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2-Column Split: Monthly Timeline & Upcoming Dues -->
+        <div class="dashboard-split-row">
+          
+          <!-- Monthly Cashflow Inflows vs Outflows -->
+          <div class="clean-card">
+            <div class="card-hdr-row">
+              <div class="card-hdr-left">
+                <div>
+                  <h2 class="card-title">Monthly Cashflow Flow</h2>
+                  <p class="card-sub">April 2026 to March 2027 Inflows vs Outflows</p>
+                </div>
+              </div>
+              <button class="btn-action-sm" onclick="switchNav('inflow')">View Details →</button>
+            </div>
+            ${renderMonthlyBarsHtml(data)}
+          </div>
+
+          <!-- Upcoming Dues / Recent Activities -->
+          <div class="clean-card">
+            <div class="card-hdr-row">
+              <div class="card-hdr-left">
+                <div>
+                  <h2 class="card-title">Upcoming Outflows</h2>
+                  <p class="card-sub">Next scheduled payments &amp; dues</p>
+                </div>
+              </div>
+              <button class="btn-action-sm" onclick="switchNav('outflow')">All Outflows</button>
+            </div>
+            ${renderUpcomingDuesList(data)}
+          </div>
+
+        </div>
+
+        <!-- Full-Width Maturity by Year Interactive Schedule -->
+        <div class="clean-card">
+          <div class="card-hdr-row">
+            <div class="card-hdr-left">
+              <div>
+                <h2 class="card-title">Maturity by Year Schedule (2025–2064)</h2>
+                <p class="card-sub">Click any milestone bar to view bond &amp; SGB redemption details</p>
+              </div>
+            </div>
+            <button class="btn-action-sm" onclick="switchNav('maturity')">Dedicated View →</button>
+          </div>
+          ${getMaturityChartHtml(data.fHoldings)}
+        </div>
+      `;
+    }
+
+    function renderMonthlyBarsHtml(data) {
+      const monthTotals = MONTH_KEYS.map(k => {
+        let inf = 0;
+        data.fTx.forEach(t => { if (t.date && t.date.startsWith(k)) inf += (t.amount || 0); });
+        let out = 0;
+        data.fIns.forEach(i => { if (i.next_due && i.next_due.startsWith(k)) out += Number(i.premium || 0); });
+        data.fExp.forEach(e => { if (e.due_date && e.due_date.startsWith(k)) out += Number(e.amount || 0); });
+        return { inf, out };
+      });
+
+      const maxVal = Math.max(...monthTotals.map(m => Math.max(m.inf, m.out)), 100000);
+
+      return `
+        <div class="cf-chart-container">
+          ${monthTotals.map((m, idx) => {
+            const infH = Math.max(8, Math.round((m.inf / maxVal) * 110));
+            const outH = Math.max(4, Math.round((m.out / maxVal) * 110));
+            const shortM = MONTH_LABELS[idx].split(' ')[0].substring(0, 3);
+            return `
+              <div class="cf-bar-col" onclick="activeMonthIdx=${idx}; switchNav('inflow');" title="${MONTH_LABELS[idx]}: Inflow ${fmt(m.inf)}, Outflow ${fmt(m.out)}">
+                <div class="cf-bar-amt">${fmtShort(m.inf)}</div>
+                <div style="display:flex;gap:3px;align-items:flex-end;">
+                  <div class="cf-bar-track" style="height:${infH}px;"></div>
+                  ${m.out > 0 ? `<div class="cf-bar-track outflow" style="height:${outH}px;"></div>` : ''}
+                </div>
+                <div class="cf-bar-lbl">${shortM}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderUpcomingDuesList(data) {
+      const dues = [];
+      data.fIns.forEach(ins => {
+        dues.push({
+          id: ins.id,
+          type: 'insurance',
+          title: ins.plan_name || 'Insurance Policy',
+          holder: ins.holder,
+          amount: Number(ins.premium || 0),
+          due_date: ins.next_due || '2026-09-28',
+          isPaid: !!paidMap[ins.id]
+        });
+      });
+      data.fExp.forEach(exp => {
+        dues.push({
+          id: exp.id,
+          type: 'expense',
+          title: exp.title,
+          holder: exp.holder,
+          amount: Number(exp.amount || 0),
+          due_date: exp.due_date,
+          isPaid: !!expPaidMap[exp.id]
+        });
+      });
+
+      dues.sort((a, b) => (a.due_date || '').localeCompare(b.due_date || ''));
+      const topDues = dues.slice(0, 4);
+
+      if (topDues.length === 0) {
+        return `<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px;">No upcoming dues found.</div>`;
+      }
+
+      return `
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          ${topDues.map(d => `
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f8fafc;border-radius:12px;border:1px solid #f1f5f9;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--text-dark);">${d.title}</div>
+                <div style="font-size:11px;color:var(--text-muted);margin-top:2px;">
+                  <span>${d.holder}</span> • <span>Due: ${toDDMMYYYY(d.due_date)}</span>
+                </div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:800;color:var(--accent-coral-text);">${fmt(d.amount)}</div>
+                <button class="btn-action-sm ${d.isPaid ? 'paid' : ''}" style="margin-top:4px;" onclick="${d.type === 'insurance' ? `togglePaid('${d.id}')` : `toggleExpPaid('${d.id}')`}">
+                  ${d.isPaid ? '✓ Paid' : 'Mark Paid'}
+                </button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    // ── Maturity Schedule Logic & Click-to-Inspect ──
+    function getMaturityChartHtml(fHoldings) {
+      const yearBuckets = {};
+      fHoldings.forEach(item => {
+        const yr = item.maturity_year || '2099';
+        if (!yearBuckets[yr]) {
+          yearBuckets[yr] = { year: yr, totalFV: 0, sgbGrams: 0, count: 0 };
+        }
+        if (item.grams > 0) {
+          yearBuckets[yr].sgbGrams += item.grams;
+        } else {
+          yearBuckets[yr].totalFV += (item.face_value || 0);
+        }
+        yearBuckets[yr].count++;
+      });
+
+      const sortedYears = Object.keys(yearBuckets).sort();
+      if (sortedYears.length === 0) {
+        return `
+          <div style="padding:24px;text-align:center;background:#f8fafc;border-radius:16px;border:1px dashed #cbd5e1;">
+            <div style="font-size:14px;font-weight:700;color:var(--text-dark);">No maturing bond holdings recorded for ${currentHolder}.</div>
+            <p style="font-size:12px;color:var(--text-muted);margin:6px 0 14px;">Select "All Family" to view all 15 maturity milestones.</p>
+            <button class="btn-new-action" style="margin:0 auto;" onclick="selectMember('All')">Show All Family Maturities</button>
+          </div>
+        `;
+      }
+
+      let maxVal = 100000;
+      sortedYears.forEach(yr => {
+        const b = yearBuckets[yr];
+        const estTotal = b.totalFV + (b.sgbGrams * sgbMarketPrice);
+        if (estTotal > maxVal) maxVal = estTotal;
+      });
+
+      return `
+        <div class="maturity-chart-scroll">
+          ${sortedYears.map(yr => {
+            const b = yearBuckets[yr];
+            const estTotal = b.totalFV + (b.sgbGrams * sgbMarketPrice);
+            const barHeight = Math.max(14, Math.round((estTotal / maxVal) * 110));
+            return `
+              <button class="year-col-btn" onclick="openYearMaturityModal('${yr}')" title="Click to view ${yr} redemption details">
+                <div class="year-bar-val">${fmtShort(estTotal)}</div>
+                <div class="year-bar-track" style="height:${barHeight}px;"></div>
+                <div class="year-bar-lbl">${yr}</div>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function openYearMaturityModal(yr) {
+      const fHoldings = holdings.filter(h => (currentHolder === 'All' || h.portfolio.toUpperCase() === currentHolder.toUpperCase()) && (h.maturity_year === yr));
+      let totalMaturityInYr = 0;
+      fHoldings.forEach(h => {
+        totalMaturityInYr += (h.grams > 0 ? h.grams * sgbMarketPrice : h.face_value);
+      });
+
+      let html = `
+        <div class="modal-hdr">
+          <div>
+            <h3 class="modal-title">Maturity Milestones in ${yr}</h3>
+            <p style="font-size:12px;color:var(--text-muted);">${fHoldings.length} maturing holding(s) • Total: ${fmt(totalMaturityInYr)}</p>
+          </div>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;max-height:60vh;overflow-y:auto;">
+          ${fHoldings.map(h => {
+            const val = h.grams > 0 ? h.grams * sgbMarketPrice : h.face_value;
+            return `
+              <div style="padding:14px;background:#f8fafc;border-radius:14px;border:1px solid var(--card-border);">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                  <div>
+                    <div style="font-size:13.5px;font-weight:700;color:var(--text-dark);">${h.asset_name}</div>
+                    <div style="font-size:11px;color:var(--text-muted);margin-top:3px;">
+                      <span>${h.portfolio}</span> • <span>${h.asset_type}</span>
+                    </div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:15px;font-weight:800;color:var(--accent-mint-text);">${fmt(val)}</div>
+                    <div style="font-size:10.5px;color:var(--text-light);">${h.grams > 0 ? h.grams + 'g' : (h.coupon_pct ? h.coupon_pct + '%' : '')}</div>
+                  </div>
+                </div>
+                <div style="font-size:11px;color:var(--text-light);margin-top:8px;border-top:1px dashed #e2e8f0;padding-top:6px;">
+                  <span>Maturity Date: <b>${toDDMMYYYY(h.maturity_date)}</b></span>
+                  ${h.isin ? ` • <span>ISIN: <code>${h.isin}</code></span>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      openModal(html);
+    }
+
+    // ── Inflow Ledger View ──
+    function renderInflowView(data) {
+      const currentMonthKey = MONTH_KEYS[activeMonthIdx];
+      const monthTx = data.fTx.filter(t => t.date && t.date.startsWith(currentMonthKey));
+
+      let mGross = 0;
+      let mRecd = 0;
+      monthTx.forEach(t => {
+        mGross += (t.amount || 0);
+        if (recdMap[t.id]) mRecd += (t.amount || 0);
+      });
+      let mPending = mGross - mRecd;
+
+      return `
+        <div class="clean-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:18px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <button class="btn-action-sm" onclick="prevMonth()">← Prev</button>
+              <h2 style="font-size:18px;font-weight:800;color:var(--text-dark);">${MONTH_LABELS[activeMonthIdx]}</h2>
+              <button class="btn-action-sm" onclick="nextMonth()">Next →</button>
+            </div>
+            <div style="display:flex;gap:16px;">
+              <div><span style="font-size:11px;color:var(--text-muted);">Month Gross:</span> <b style="font-size:15px;color:var(--text-dark);">${fmt(mGross)}</b></div>
+              <div><span style="font-size:11px;color:var(--text-muted);">Received:</span> <b style="font-size:15px;color:var(--accent-mint-text);">${fmt(mRecd)}</b></div>
+              <div><span style="font-size:11px;color:var(--text-muted);">Pending:</span> <b style="font-size:15px;color:var(--accent-coral-text);">${fmt(mPending)}</b></div>
+            </div>
+          </div>
+
+          <!-- Inflow Data Table -->
+          <div class="web-table-wrapper">
+            <table class="web-table">
+              <thead>
+                <tr>
+                  <th>Payout Date</th>
+                  <th>Holder</th>
+                  <th>Bond / Asset</th>
+                  <th>Type</th>
+                  <th>Coupon %</th>
+                  <th>Net Payout</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${monthTx.length === 0 ? `<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--text-muted);">No coupon payouts scheduled in ${MONTH_LABELS[activeMonthIdx]}.</td></tr>` : 
+                  monthTx.map(t => {
+                    const isR = !!recdMap[t.id];
+                    return `
+                      <tr>
+                        <td><b>${toDDMMYYYY(t.date)}</b></td>
+                        <td>${t.holder}</td>
+                        <td>
+                          <div style="font-weight:700;">${t.asset}</div>
+                          ${t.isin ? `<div style="font-size:10px;color:var(--text-light);">${t.isin}</div>` : ''}
+                        </td>
+                        <td><span class="table-badge" style="background:#f1f5f9;">${t.type}</span></td>
+                        <td>${t.coupon ? t.coupon + '%' : '—'}</td>
+                        <td><b style="font-size:14px;color:var(--accent-mint-text);">${fmt(t.amount)}</b></td>
+                        <td>
+                          <span class="table-badge" style="background:${isR ? 'var(--accent-mint-badge)' : 'var(--accent-coral-badge)'};color:${isR ? 'var(--accent-mint-text)' : 'var(--accent-coral-text)'};">
+                            ${isR ? '✓ Received' : '⏳ Pending'}
+                          </span>
+                        </td>
+                        <td>
+                          <button class="btn-action-sm ${isR ? 'recd' : ''}" onclick="toggleRecd('${t.id}')">
+                            ${isR ? 'Mark Pending' : 'Mark Recd'}
+                          </button>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function prevMonth() {
+      activeMonthIdx = (activeMonthIdx - 1 + 12) % 12;
+      render();
+    }
+
+    function nextMonth() {
+      activeMonthIdx = (activeMonthIdx + 1) % 12;
+      render();
+    }
+
+    function toggleRecd(id) {
+      recdMap[id] = !recdMap[id];
+      safeSet('fc_recd_v7', recdMap);
+      render();
+    }
+
+    function togglePaid(id) {
+      paidMap[id] = !paidMap[id];
+      safeSet('fc_paid_v7', paidMap);
+      render();
+    }
+
+    function toggleExpPaid(id) {
+      expPaidMap[id] = !expPaidMap[id];
+      safeSet('fc_exp_paid_v7', expPaidMap);
+      render();
+    }
+
+    // ── Outflows View ──
+    function renderOutflowView(data) {
+      return `
+        <div class="clean-card">
+          <div class="card-hdr-row">
+            <div>
+              <h2 class="card-title">Outflows &amp; Operating Expenses</h2>
+              <p class="card-sub">Distinguishing Estimated Total from Actual Paid Commitments</p>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn-new-action" onclick="openExpenseModal()">+ Add Expense</button>
+              <button class="btn-action-sm" onclick="openInsuranceModal()">+ Add Policy</button>
+            </div>
+          </div>
+
+          <!-- Outflows Subtab Filter -->
+          <div style="display:flex;gap:8px;margin-bottom:18px;">
+            <button class="member-chip ${outflowSubTab === 'all' ? 'active' : ''}" onclick="outflowSubTab='all';render();">All Outflows</button>
+            <button class="member-chip ${outflowSubTab === 'insurance' ? 'active' : ''}" onclick="outflowSubTab='insurance';render();">Insurance Policies (${data.fIns.length})</button>
+            <button class="member-chip ${outflowSubTab === 'expenses' ? 'active' : ''}" onclick="outflowSubTab='expenses';render();">Operating Expenses (${data.fExp.length})</button>
+          </div>
+
+          <!-- Outflow Table -->
+          <div class="web-table-wrapper">
+            <table class="web-table">
+              <thead>
+                <tr>
+                  <th>Due Date</th>
+                  <th>Category</th>
+                  <th>Title / Plan</th>
+                  <th>Member</th>
+                  <th>Paid From</th>
+                  <th>Bill / Ref No.</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${renderOutflowTableRows(data)}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOutflowTableRows(data) {
+      const rows = [];
+      if (outflowSubTab === 'all' || outflowSubTab === 'insurance') {
+        data.fIns.forEach(ins => {
+          const isP = !!paidMap[ins.id];
+          rows.push(`
+            <tr>
+              <td><b>${toDDMMYYYY(ins.next_due)}</b></td>
+              <td><span class="table-badge" style="background:#e0f2fe;color:#0284c7;">🛡️ Insurance</span></td>
+              <td>
+                <div style="font-weight:700;">${ins.plan_name}</div>
+                <div style="font-size:10.5px;color:var(--text-muted);">${ins.insurer}</div>
+              </td>
+              <td>${ins.holder}</td>
+              <td>Auto Debit</td>
+              <td><code>${ins.policy_no || '—'}</code></td>
+              <td><b style="font-size:14px;color:var(--accent-coral-text);">${fmt(ins.premium)}</b></td>
+              <td>
+                <span class="table-badge" style="background:${isP ? 'var(--accent-mint-badge)' : 'var(--accent-coral-badge)'};color:${isP ? 'var(--accent-mint-text)' : 'var(--accent-coral-text)'};">
+                  ${isP ? '✓ Paid' : '⏳ Pending'}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn-action-sm ${isP ? 'paid' : ''}" onclick="togglePaid('${ins.id}')">
+                    ${isP ? 'Mark Unpaid' : 'Mark Paid'}
+                  </button>
+                  <button class="btn-action-sm" onclick="openInsuranceModal('${ins.id}')">Edit</button>
+                </div>
+              </td>
+            </tr>
+          `);
+        });
+      }
+
+      if (outflowSubTab === 'all' || outflowSubTab === 'expenses') {
+        data.fExp.forEach(exp => {
+          const isP = !!expPaidMap[exp.id];
+          rows.push(`
+            <tr>
+              <td><b>${toDDMMYYYY(exp.due_date)}</b></td>
+              <td><span class="table-badge" style="background:#f1f5f9;">${exp.category}</span></td>
+              <td>
+                <div style="font-weight:700;">${exp.title}</div>
+                ${exp.is_recurring ? `<span style="font-size:10px;color:var(--accent-gold);">${exp.frequency || 'Recurring'}</span>` : ''}
+              </td>
+              <td>${exp.holder}</td>
+              <td><span style="font-weight:600;color:var(--brand-green);">${exp.paid_from || '—'}</span></td>
+              <td>
+                <a style="cursor:pointer;color:var(--brand-green);font-weight:600;text-decoration:underline;" onclick="openUpdateBillModal('${exp.id}')">
+                  ${exp.bill_no && exp.bill_no !== '—' ? exp.bill_no : '+ Add Bill#'}
+                </a>
+              </td>
+              <td><b style="font-size:14px;color:var(--accent-coral-text);">${fmt(exp.amount)}</b></td>
+              <td>
+                <span class="table-badge" style="background:${isP ? 'var(--accent-mint-badge)' : 'var(--accent-coral-badge)'};color:${isP ? 'var(--accent-mint-text)' : 'var(--accent-coral-text)'};">
+                  ${isP ? '✓ Paid' : '⏳ Pending'}
+                </span>
+              </td>
+              <td>
+                <div style="display:flex;gap:6px;">
+                  <button class="btn-action-sm ${isP ? 'paid' : ''}" onclick="toggleExpPaid('${exp.id}')">
+                    ${isP ? 'Mark Unpaid' : 'Mark Paid'}
+                  </button>
+                  <button class="btn-action-sm" onclick="openExpenseModal('${exp.id}')">Edit</button>
+                  <button class="btn-action-sm" style="color:var(--accent-coral-text);" onclick="deleteExpense('${exp.id}')">✕</button>
+                </div>
+              </td>
+            </tr>
+          `);
+        });
+      }
+
+      if (rows.length === 0) {
+        return `<tr><td colspan="9" style="text-align:center;padding:24px;color:var(--text-muted);">No outflows matching current filter.</td></tr>`;
+      }
+      return rows.join('');
+    }
+
+    // ── Dedicated Maturity View ──
+    function renderMaturityView(data) {
+      return `
+        <div class="clean-card">
+          <div class="card-hdr-row">
+            <div>
+              <h2 class="card-title">Maturity by Year Schedule (2025–2064)</h2>
+              <p class="card-sub">Interactive 15 Milestone Timeline &amp; Full Redemption Directory</p>
+            </div>
+          </div>
+          ${getMaturityChartHtml(data.fHoldings)}
+        </div>
+
+        <div class="clean-card">
+          <h2 class="card-title" style="margin-bottom:14px;">All Scheduled Redemptions</h2>
+          <div class="web-table-wrapper">
+            <table class="web-table">
+              <thead>
+                <tr>
+                  <th>Maturity Year</th>
+                  <th>Maturity Date</th>
+                  <th>Holder</th>
+                  <th>Bond Name</th>
+                  <th>Asset Type</th>
+                  <th>Coupon %</th>
+                  <th>Face Value / Grams</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.fHoldings.slice().sort((a,b) => (a.maturity_year || '9999').localeCompare(b.maturity_year || '9999')).map(h => `
+                  <tr>
+                    <td><span class="table-badge" style="background:var(--brand-green-subtle);color:var(--brand-green);font-size:12px;"><b>${h.maturity_year}</b></span></td>
+                    <td>${toDDMMYYYY(h.maturity_date)}</td>
+                    <td><b>${h.portfolio}</b></td>
+                    <td>
+                      <div style="font-weight:700;">${h.asset_name}</div>
+                      ${h.isin ? `<div style="font-size:10px;color:var(--text-light);">${h.isin}</div>` : ''}
+                    </td>
+                    <td>${h.asset_type}</td>
+                    <td>${h.coupon_pct ? h.coupon_pct + '%' : '—'}</td>
+                    <td><b style="font-size:14px;color:var(--accent-mint-text);">${h.grams > 0 ? h.grams + 'g (' + fmt(h.grams * sgbMarketPrice) + ')' : fmt(h.face_value)}</b></td>
+                    <td>
+                      <button class="btn-action-sm" onclick="openSellModal('${h.id}')">Sell / Exit</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Insurance & Smart PPT View ──
+    function renderInsuranceView(data) {
+      return `
+        <div class="clean-card">
+          <div class="card-hdr-row">
+            <div>
+              <h2 class="card-title">Insurance &amp; Smart PPT Dashboard</h2>
+              <p class="card-sub">Tracking Premium Paying Terms, Maturity Dates &amp; Reminders</p>
+            </div>
+            <button class="btn-new-action" onclick="openInsuranceModal()">+ Add Policy</button>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(360px, 1fr));gap:16px;">
+            ${data.fIns.map(ins => {
+              const pptInfo = calcPolicyPptStatus(ins.inception_date, ins.ppt_years, ins.policy_term);
+              const isP = !!paidMap[ins.id];
+              return `
+                <div style="padding:18px;background:#ffffff;border:1px solid var(--card-border);border-radius:16px;box-shadow:var(--shadow-sm);">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div>
+                      <div style="font-size:15px;font-weight:800;color:var(--text-dark);">${ins.plan_name}</div>
+                      <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">${ins.insurer} • <b>${ins.holder}</b></div>
+                    </div>
+                    <span class="table-badge" style="background:${isP ? 'var(--accent-mint-badge)' : 'var(--accent-coral-badge)'};color:${isP ? 'var(--accent-mint-text)' : 'var(--accent-coral-text)'};">
+                      ${isP ? '✓ Paid' : '⏳ Due Soon'}
+                    </span>
+                  </div>
+
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0;padding:12px;background:#f8fafc;border-radius:12px;">
+                    <div>
+                      <div style="font-size:11px;color:var(--text-muted);">Annual Premium:</div>
+                      <div style="font-size:16px;font-weight:800;color:var(--accent-coral-text);">${fmt(ins.premium)}</div>
+                    </div>
+                    <div>
+                      <div style="font-size:11px;color:var(--text-muted);">Sum Assured:</div>
+                      <div style="font-size:16px;font-weight:800;color:var(--text-dark);">${fmt(ins.sum_assured)}</div>
+                    </div>
+                  </div>
+
+                  <!-- PPT Progress -->
+                  <div style="margin-bottom:14px;">
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;margin-bottom:6px;">
+                      <span>PPT Progress: Year ${pptInfo.paymentYearNum} of ${ins.ppt_years}</span>
+                      <span>${pptInfo.progressPct}%</span>
+                    </div>
+                    <div style="height:6px;border-radius:9999px;background:#e2e8f0;overflow:hidden;">
+                      <div style="height:100%;background:var(--brand-green);width:${pptInfo.progressPct}%;"></div>
+                    </div>
+                    <div style="font-size:10.5px;color:var(--text-muted);margin-top:4px;">
+                      Inception: ${toDDMMYYYY(ins.inception_date)} • PPT Ends: ${pptInfo.endPptYear} • Maturity: ${pptInfo.maturityYear}
+                    </div>
+                  </div>
+
+                  <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:12px;">
+                    <button class="btn-action-sm ${isP ? 'paid' : ''}" onclick="togglePaid('${ins.id}')">
+                      ${isP ? 'Mark Unpaid' : 'Mark Paid'}
+                    </button>
+                    <div style="display:flex;gap:6px;">
+                      <button class="btn-action-sm" onclick="openInsuranceModal('${ins.id}')">Edit</button>
+                      <button class="btn-action-sm" style="color:var(--accent-coral-text);" onclick="deleteInsurance('${ins.id}')">Delete</button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function calcPolicyPptStatus(inceptionDate, pptYears, policyTerm) {
+      if (!inceptionDate || !pptYears) {
+        return { isWithinPpt: true, isCompleted: false, paymentYearNum: 1, endPptYear: 2030, maturityYear: 2036, progressPct: 20 };
+      }
+      const p = inceptionDate.split('-');
+      const incepYr = parseInt(p[0], 10) || 2021;
+      const curYr = 2026;
+      const ppt = parseInt(pptYears, 10) || 10;
+      const term = parseInt(policyTerm, 10) || ppt;
+      const endPptYear = incepYr + ppt;
+      const maturityYear = incepYr + term;
+      const diff = curYr - incepYr;
+      const paymentYearNum = Math.min(Math.max(diff + 1, 1), ppt);
+      const progressPct = Math.min(100, Math.round((paymentYearNum / ppt) * 100));
+
+      return {
+        isWithinPpt: curYr <= endPptYear,
+        isCompleted: curYr > endPptYear,
+        paymentYearNum,
+        endPptYear,
+        maturityYear,
+        progressPct
+      };
+    }
+
+    // ── Spending Analytics View ──
+    function renderAnalyticsView(data) {
+      const catTotals = {};
+      data.fExp.forEach(e => {
+        const c = e.category || 'General';
+        catTotals[c] = (catTotals[c] || 0) + Number(e.amount || 0);
+      });
+
+      const sortedCats = Object.keys(catTotals).sort((a,b) => catTotals[b] - catTotals[a]);
+      const totalExp = Object.values(catTotals).reduce((a, b) => a + b, 0);
+
+      return `
+        <div class="clean-card">
+          <div class="card-hdr-row">
+            <div>
+              <h2 class="card-title">Spending Analytics &amp; Categories</h2>
+              <p class="card-sub">Expenditure distribution across family operating categories</p>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              ${sortedCats.map(cat => {
+                const amt = catTotals[cat];
+                const pct = totalExp > 0 ? Math.round((amt / totalExp) * 100) : 0;
+                return `
+                  <div>
+                    <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:6px;">
+                      <span>${cat}</span>
+                      <span>${fmt(amt)} (${pct}%)</span>
+                    </div>
+                    <div style="height:8px;border-radius:9999px;background:#e2e8f0;overflow:hidden;">
+                      <div style="height:100%;background:var(--brand-green);width:${pct}%;"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+
+            <div class="web-table-wrapper">
+              <table class="web-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Annual Total</th>
+                    <th>Share</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${sortedCats.map(cat => `
+                    <tr>
+                      <td><b>${cat}</b></td>
+                      <td><b style="color:var(--accent-coral-text);">${fmt(catTotals[cat])}</b></td>
+                      <td>${totalExp > 0 ? Math.round((catTotals[cat] / totalExp) * 100) : 0}%</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Holdings Directory View ──
+    function renderHoldingsView(data) {
+      return `
+        <div class="clean-card">
+          <div class="card-hdr-row">
+            <div>
+              <h2 class="card-title">Holdings Directory (${data.fHoldings.length} Assets)</h2>
+              <p class="card-sub">All Government Securities, SGBs, Debentures &amp; Savings Bonds</p>
+            </div>
+          </div>
+
+          <div class="web-table-wrapper">
+            <table class="web-table">
+              <thead>
+                <tr>
+                  <th>Holder</th>
+                  <th>Asset Name</th>
+                  <th>Type</th>
+                  <th>ISIN</th>
+                  <th>Coupon %</th>
+                  <th>Maturity</th>
+                  <th>Units / Grams</th>
+                  <th>Face / Mkt Value</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.fHoldings.map(h => `
+                  <tr>
+                    <td><b>${h.portfolio}</b></td>
+                    <td>
+                      <div style="font-weight:700;">${h.asset_name}</div>
+                      <div style="font-size:10.5px;color:var(--text-light);">${h.interest_dates || ''}</div>
+                    </td>
+                    <td><span class="table-badge" style="background:#f1f5f9;">${h.asset_type}</span></td>
+                    <td><code>${h.isin || '—'}</code></td>
+                    <td>${h.coupon_pct ? h.coupon_pct + '%' : '—'}</td>
+                    <td>${toDDMMYYYY(h.maturity_date)}</td>
+                    <td>${h.grams > 0 ? h.grams + ' Grams' : (h.qty ? h.qty + ' ' + (h.qty_unit || '') : '—')}</td>
+                    <td><b style="font-size:14px;color:var(--accent-mint-text);">${h.grams > 0 ? fmt(h.grams * sgbMarketPrice) : fmt(h.face_value)}</b></td>
+                    <td>
+                      <button class="btn-action-sm" onclick="openSellModal('${h.id}')">Sell / Exit</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // ── Modals & Dialogs ──
+    function openModal(html) {
+      const overlay = document.getElementById('modalOverlay');
+      const content = document.getElementById('modalContent');
+      content.innerHTML = html;
+      overlay.style.display = 'flex';
+    }
+
+    function closeModal() {
+      const overlay = document.getElementById('modalOverlay');
+      overlay.style.display = 'none';
+    }
+
+    // Privacy Mode (PIN 636590)
+    let enteredPin = '';
+    function handlePrivacyClick() {
+      if (isPrivacyMode) {
+        openPinModal();
+      } else {
+        isPrivacyMode = true;
+        safeSet('fc_privacy_v7', true);
+        render();
+      }
+    }
+
+    function openPinModal() {
+      enteredPin = '';
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">Unlock Privacy Mode</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <p style="text-align:center;font-size:13px;color:var(--text-muted);">Enter 6-digit security PIN to reveal amounts:</p>
+        <div class="pin-dots-row">
+          <div class="pin-dot" id="pdot0"></div>
+          <div class="pin-dot" id="pdot1"></div>
+          <div class="pin-dot" id="pdot2"></div>
+          <div class="pin-dot" id="pdot3"></div>
+          <div class="pin-dot" id="pdot4"></div>
+          <div class="pin-dot" id="pdot5"></div>
+        </div>
+        <div id="pinErr" style="height:18px;text-align:center;font-size:12px;font-weight:700;color:var(--accent-coral-text);"></div>
+        <div class="pin-keypad">
+          ${[1,2,3,4,5,6,7,8,9].map(n => `<button class="pin-key" onclick="pressPinKey('${n}')">${n}</button>`).join('')}
+          <button class="pin-key" style="font-size:13px;" onclick="enteredPin='';updatePinDots();">Clear</button>
+          <button class="pin-key" onclick="pressPinKey('0')">0</button>
+          <button class="pin-key" style="font-size:14px;" onclick="enteredPin=enteredPin.slice(0,-1);updatePinDots();">⌫</button>
+        </div>
+      `;
+      openModal(html);
+    }
+
+    function pressPinKey(k) {
+      if (enteredPin.length < 6) {
+        enteredPin += k;
+        updatePinDots();
+        if (enteredPin.length === 6) {
+          if (enteredPin === '636590') {
+            isPrivacyMode = false;
+            safeSet('fc_privacy_v7', false);
+            closeModal();
+            render();
+          } else {
+            document.getElementById('pinErr').innerText = 'Incorrect PIN. Try again.';
+            enteredPin = '';
+            setTimeout(updatePinDots, 600);
+          }
+        }
+      }
+    }
+
+    function updatePinDots() {
+      for (let i = 0; i < 6; i++) {
+        const el = document.getElementById('pdot' + i);
+        if (el) {
+          if (i < enteredPin.length) el.classList.add('filled');
+          else el.classList.remove('filled');
+        }
+      }
+    }
+
+    // SGB Slider Handlers
+    function onSgbSliderInput(val) {
+      sgbMarketPrice = parseInt(val, 10);
+      document.getElementById('sidebarGoldPrice').innerText = '₹' + sgbMarketPrice.toLocaleString('en-IN') + '/g';
+      render();
+    }
+
+    function onSgbSliderChange(val) {
+      sgbMarketPrice = parseInt(val, 10);
+      safeSet('fc_sgb_price', sgbMarketPrice);
+      render();
+    }
+
+    // Add / Edit Expense Modal
+    function openExpenseModal(editId) {
+      const exp = editId ? expenses.find(e => e.id === editId) : null;
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">${exp ? 'Edit Expense' : 'Add New Outflow / Expense'}</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <form onsubmit="saveExpense(event, '${editId || ''}')">
+          <div class="form-group">
+            <label class="form-lbl">Expense Title</label>
+            <input type="text" class="form-input" id="exp_title" required value="${exp ? exp.title : ''}" placeholder="e.g. Society Maintenance, Torrent Power">
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-lbl">Family Member</label>
+              <select class="form-select" id="exp_holder">
+                ${HOLDERS.filter(h => h !== 'All').map(h => `<option value="${h}" ${exp && exp.holder === h ? 'selected' : ''}>${h}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Paid From Bank</label>
+              <select class="form-select" id="exp_bank">
+                ${bankAccounts.map(b => `<option value="${b}" ${exp && exp.paid_from === b ? 'selected' : ''}>${b}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-lbl">Category</label>
+              <select class="form-select" id="exp_cat">
+                ${expenseCategories.map(c => `<option value="${c}" ${exp && exp.category === c ? 'selected' : ''}>${c}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Amount (₹)</label>
+              <input type="number" class="form-input" id="exp_amt" required value="${exp ? exp.amount : ''}" placeholder="15000">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-lbl">Due Date</label>
+              <input type="date" class="form-input" id="exp_date" required value="${exp ? exp.due_date : '2026-05-15'}">
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Bill / Ref Number</label>
+              <input type="text" class="form-input" id="exp_bill" value="${exp && exp.bill_no ? exp.bill_no : ''}" placeholder="e.g. TOR-2026-001">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-lbl">Recurring Expense?</label>
+              <select class="form-select" id="exp_rec">
+                <option value="false" ${exp && !exp.is_recurring ? 'selected' : ''}>One-time</option>
+                <option value="true" ${exp && exp.is_recurring ? 'selected' : ''}>Recurring</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Frequency</label>
+              <select class="form-select" id="exp_freq">
+                <option value="Monthly" ${exp && exp.frequency === 'Monthly' ? 'selected' : ''}>Monthly</option>
+                <option value="Quarterly" ${exp && exp.frequency === 'Quarterly' ? 'selected' : ''}>Quarterly</option>
+                <option value="Yearly" ${exp && exp.frequency === 'Yearly' ? 'selected' : ''}>Yearly</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn-submit">${exp ? 'Update Expense' : 'Save Expense'}</button>
+        </form>
+      `;
+      openModal(html);
+    }
+
+    function saveExpense(e, editId) {
+      e.preventDefault();
+      const title = document.getElementById('exp_title').value;
+      const holder = document.getElementById('exp_holder').value;
+      const paid_from = document.getElementById('exp_bank').value;
+      const category = document.getElementById('exp_cat').value;
+      const amount = Number(document.getElementById('exp_amt').value);
+      const due_date = document.getElementById('exp_date').value;
+      const bill_no = document.getElementById('exp_bill').value || '—';
+      const is_recurring = document.getElementById('exp_rec').value === 'true';
+      const frequency = document.getElementById('exp_freq').value;
+
+      if (editId) {
+        const idx = expenses.findIndex(x => x.id === editId);
+        if (idx !== -1) {
+          expenses[idx] = { id: editId, title, holder, paid_from, category, amount, due_date, bill_no, is_recurring, frequency };
+        }
+      } else {
+        expenses.unshift({
+          id: 'exp_' + Date.now(),
+          title, holder, paid_from, category, amount, due_date, bill_no, is_recurring, frequency
+        });
+      }
+      safeSet('fc_expenses_v7', expenses);
+      closeModal();
+      render();
+    }
+
+    function deleteExpense(id) {
+      if (confirm('Delete this expense?')) {
+        expenses = expenses.filter(x => x.id !== id);
+        safeSet('fc_expenses_v7', expenses);
+        render();
+      }
+    }
+
+    // Update Bill Modal
+    function openUpdateBillModal(id) {
+      const exp = expenses.find(x => x.id === id);
+      if (!exp) return;
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">Update Bill Number</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <p style="font-size:13px;color:var(--text-muted);margin-bottom:12px;"><b>${exp.title}</b> (${exp.holder})</p>
+        <div class="form-group">
+          <label class="form-lbl">Bill / Reference Number</label>
+          <input type="text" class="form-input" id="quick_bill_val" value="${exp.bill_no && exp.bill_no !== '—' ? exp.bill_no : ''}" placeholder="e.g. INV-2026-904">
+        </div>
+        <button class="btn-submit" onclick="saveQuickBill('${id}')">Save Bill Number</button>
+      `;
+      openModal(html);
+    }
+
+    function saveQuickBill(id) {
+      const val = document.getElementById('quick_bill_val').value.trim() || '—';
+      const exp = expenses.find(x => x.id === id);
+      if (exp) {
+        exp.bill_no = val;
+        safeSet('fc_expenses_v7', expenses);
+        closeModal();
+        render();
+      }
+    }
+
+    // Add / Edit Insurance Modal
+    function openInsuranceModal(editId) {
+      const ins = editId ? insurance.find(i => i.id === editId) : null;
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">${ins ? 'Edit Policy' : 'Add Insurance Policy'}</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <form onsubmit="saveInsurance(event, '${editId || ''}')">
+          <div class="form-group">
+            <label class="form-lbl">Insurer Name (IRDAI Directory)</label>
+            <select class="form-select" id="ins_insurer">
+              ${ALL_INDIAN_INSURERS.map(n => `<option value="${n}" ${ins && ins.insurer === n ? 'selected' : ''}>${n}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-lbl">Policy Holder</label>
+              <select class="form-select" id="ins_holder">
+                ${HOLDERS.filter(h => h !== 'All').map(h => `<option value="${h}" ${ins && ins.holder === h ? 'selected' : ''}>${h}</option>`).join('')}
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Plan Name</label>
+              <input type="text" class="form-input" id="ins_plan" required value="${ins ? ins.plan_name : ''}" placeholder="e.g. Jeevan Labh">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-lbl">Inception Date</label>
+              <input type="date" class="form-input" id="ins_incep" required value="${ins ? ins.inception_date : '2021-09-28'}">
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">PPT (Years)</label>
+              <input type="number" class="form-input" id="ins_ppt" required value="${ins ? ins.ppt_years : 10}">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label class="form-lbl">Annual Premium (₹)</label>
+              <input type="number" class="form-input" id="ins_prem" required value="${ins ? ins.premium : 67741}">
+            </div>
+            <div class="form-group">
+              <label class="form-lbl">Sum Assured (₹)</label>
+              <input type="number" class="form-input" id="ins_sa" required value="${ins ? ins.sum_assured : 1000000}">
+            </div>
+          </div>
+          <button type="submit" class="btn-submit">${ins ? 'Update Policy' : 'Save Policy'}</button>
+        </form>
+      `;
+      openModal(html);
+    }
+
+    function saveInsurance(e, editId) {
+      e.preventDefault();
+      const insurer = document.getElementById('ins_insurer').value;
+      const holder = document.getElementById('ins_holder').value;
+      const plan_name = document.getElementById('ins_plan').value;
+      const inception_date = document.getElementById('ins_incep').value;
+      const ppt_years = Number(document.getElementById('ins_ppt').value);
+      const premium = Number(document.getElementById('ins_prem').value);
+      const sum_assured = Number(document.getElementById('ins_sa').value);
+
+      if (editId) {
+        const idx = insurance.findIndex(i => i.id === editId);
+        if (idx !== -1) {
+          insurance[idx] = { ...insurance[idx], insurer, holder, plan_name, inception_date, ppt_years, premium, sum_assured };
+        }
+      } else {
+        insurance.unshift({
+          id: 'ins_' + Date.now(),
+          insurer, holder, plan_name, inception_date, ppt_years, premium, sum_assured,
+          next_due: '2026-09-28', status: 'Active'
+        });
+      }
+      safeSet('fc_ins_v7', insurance);
+      closeModal();
+      render();
+    }
+
+    function deleteInsurance(id) {
+      if (confirm('Delete this insurance policy?')) {
+        insurance = insurance.filter(i => i.id !== id);
+        safeSet('fc_ins_v7', insurance);
+        render();
+      }
+    }
+
+    // Sell / Exit Bond Modal
+    function openSellModal(id) {
+      const h = holdings.find(x => x.id === id);
+      if (!h) return;
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">Sell / Exit Asset</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="font-size:13.5px;font-weight:700;margin-bottom:4px;">${h.asset_name}</div>
+        <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:14px;">Holder: <b>${h.portfolio}</b> • Face Value: ${fmt(h.face_value)}</p>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-lbl">Sell Date</label>
+            <input type="date" class="form-input" id="sell_date" value="2026-06-15">
+          </div>
+          <div class="form-group">
+            <label class="form-lbl">Sell Rate (₹ per unit/gram)</label>
+            <input type="number" class="form-input" id="sell_rate" value="${h.grams > 0 ? sgbMarketPrice : 100}" oninput="calcSellVal('${id}')">
+          </div>
+        </div>
+        <div style="padding:14px;background:#f8fafc;border-radius:12px;border:1px solid #f1f5f9;margin:10px 0;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;">
+            <span>Estimated Realized Total:</span>
+            <span id="sellRealizedVal" style="color:var(--accent-mint-text);">${fmt(h.grams > 0 ? h.grams * sgbMarketPrice : h.face_value)}</span>
+          </div>
+        </div>
+        <button class="btn-submit" onclick="confirmSell('${id}')">Confirm Exit</button>
+      `;
+      openModal(html);
+    }
+
+    function calcSellVal(id) {
+      const h = holdings.find(x => x.id === id);
+      const rate = Number(document.getElementById('sell_rate').value) || 0;
+      let total = 0;
+      if (h.grams > 0) total = h.grams * rate;
+      else total = (h.qty || 1000) * rate;
+      document.getElementById('sellRealizedVal').innerText = fmt(total);
+    }
+
+    function confirmSell(id) {
+      alert('Asset exit recorded! Payout moved to realized ledger.');
+      closeModal();
+    }
+
+    // Quick Action Menu
+    function openQuickActionMenu() {
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">Quick Action</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:10px 0;">
+          <button class="btn-submit" style="background:#0a3e2f;" onclick="closeModal();openExpenseModal();">💸 + Add Expense</button>
+          <button class="btn-submit" style="background:#0284c7;" onclick="closeModal();openInsuranceModal();">🛡️ + Add Policy</button>
+          <button class="btn-submit" style="background:#b45309;" onclick="closeModal();switchNav('holdings');">📜 View Holdings</button>
+          <button class="btn-submit" style="background:#047857;" onclick="closeModal();openBackupModal();">💾 Backup Data</button>
+        </div>
+      `;
+      openModal(html);
+    }
+
+    // Notifications Modal
+    function openNotifs() {
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">Treasury Reminders &amp; Alerts</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+          <div style="padding:12px;background:#f8fafc;border-radius:12px;border:1px solid #f1f5f9;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-dark);">⚡ Upcoming Coupon Payout</div>
+            <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">UP POWER CORPORATION ₹23,507 due on 17-Apr-2026 (Pramesh R Shah)</div>
+          </div>
+          <div style="padding:12px;background:#f8fafc;border-radius:12px;border:1px solid #f1f5f9;">
+            <div style="font-size:13px;font-weight:700;color:var(--text-dark);">🛡️ Insurance Premium Due</div>
+            <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">LIC Jeevan Labh ₹67,741 due on 28-Sep-2026 (Saahil P Shah)</div>
+          </div>
+        </div>
+      `;
+      openModal(html);
+    }
+
+    // Backup & Restore Modal
+    function openBackupModal() {
+      const exportObj = {
+        holdings, transactions, insurance, expenses,
+        expenseCategories, bankAccounts, recdMap, paidMap, expPaidMap,
+        timestamp: new Date().toISOString()
+      };
+      const jsonStr = JSON.stringify(exportObj, null, 2);
+
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">Backup &amp; Restore Data</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        <p style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;">Download a JSON copy of all holdings, expenses, and policies, or restore from a previous backup file.</p>
+        <div style="display:flex;gap:12px;margin-bottom:16px;">
+          <button class="btn-submit" onclick="downloadBackup()">📥 Download JSON Backup</button>
+          <label class="btn-submit" style="background:#0284c7;text-align:center;cursor:pointer;">
+            📤 Restore from File
+            <input type="file" style="display:none;" accept=".json" onchange="uploadBackup(event)">
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-lbl">Raw JSON Data</label>
+          <textarea class="form-input" style="height:120px;font-family:monospace;font-size:11px;" readonly>${jsonStr}</textarea>
+        </div>
+      `;
+      openModal(html);
+    }
+
+    function downloadBackup() {
+      const exportObj = {
+        holdings, transactions, insurance, expenses,
+        expenseCategories, bankAccounts, recdMap, paidMap, expPaidMap,
+        timestamp: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'crescendo-family-cashflow-backup-' + new Date().toISOString().slice(0,10) + '.json';
+      a.click();
+    }
+
+    function uploadBackup(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const obj = JSON.parse(evt.target.result);
+          if (obj.holdings) {
+            holdings = obj.holdings;
+            safeSet('fc_holdings_v7', holdings);
+          }
+          if (obj.transactions) {
+            transactions = obj.transactions;
+            safeSet('fc_tx_v7', transactions);
+          }
+          if (obj.insurance) {
+            insurance = obj.insurance;
+            safeSet('fc_ins_v7', insurance);
+          }
+          if (obj.expenses) {
+            expenses = obj.expenses;
+            safeSet('fc_expenses_v7', expenses);
+          }
+          alert('Backup restored successfully!');
+          closeModal();
+          render();
+        } catch(err) {
+          alert('Invalid backup file: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // Initial Launch
+    window.addEventListener('DOMContentLoaded', () => {
+      render();
+    });
+  </script>
+</body>
+</html>
