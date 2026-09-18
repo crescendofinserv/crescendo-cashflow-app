@@ -1107,7 +1107,7 @@
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
             Backup
           </button>
-          <a class="sidebar-btn" href="index.html" title="Open Mobile View">
+          <a class="sidebar-btn" href="index.html" onclick="this.href='index.html#sync='+getSyncPayload()" title="Open Mobile View (with live sync)">
             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
             Mobile App
           </a>
@@ -1137,6 +1137,9 @@
             <input type="text" id="globalSearchInput" placeholder="Filter bonds, dues..." oninput="handleSearch(this.value)">
           </div>
 
+          <button class="topbar-action-btn" onclick="openSyncModal()" title="Sync with Mobile App" style="color:var(--brand-green);">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
           <button class="topbar-action-btn" id="privacyBtn" onclick="handlePrivacyClick()" title="Privacy Mode (PIN 636590)">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </button>
@@ -1272,16 +1275,217 @@
       return Array.from(new Set([...DEFAULT_ACCS, ...cleaned]));
     }
 
-    // State Variables
-    let holdings = safeGet('fc_holdings_v7', SEED_HOLDINGS);
-    let transactions = safeGet('fc_tx_v7', SEED_TX);
-    let insurance = safeGet('fc_ins_v7', SEED_INS);
-    let expenses = safeGet('fc_expenses_v7', DEFAULT_EXPENSES);
-    let expenseCategories = safeGet('fc_exp_cats_v7', DEFAULT_CATS);
-    let bankAccounts = sanitizeBankAccounts(safeGet('fc_bank_accs_v7', DEFAULT_ACCS));
-    let recdMap = safeGet('fc_recd_v7', {});
-    let paidMap = safeGet('fc_paid_v7', {});
-    let expPaidMap = safeGet('fc_exp_paid_v7', {});
+
+    // ── Universal Multi-Version Key Aggregator ──
+    function getLegacyMerged(keyPrefix, defaultVal) {
+      const v7 = safeGet(keyPrefix + '_v7', null);
+      const v6 = safeGet(keyPrefix + '_v6', null);
+      const v5 = safeGet(keyPrefix + '_v5', null);
+      const v4 = safeGet(keyPrefix + '_v4', null);
+      const legacy = safeGet(keyPrefix, null);
+
+      if (Array.isArray(defaultVal)) {
+        if (v7 && v7.length) return v7;
+        if (v6 && v6.length) return v6;
+        if (v5 && v5.length) return v5;
+        if (v4 && v4.length) return v4;
+        if (legacy && legacy.length) return legacy;
+        return defaultVal;
+      }
+
+      if (typeof defaultVal === 'object' && defaultVal !== null) {
+        return Object.assign({}, legacy || {}, v4 || {}, v5 || {}, v6 || {}, v7 || {});
+      }
+
+      return v7 !== null ? v7 : (v6 !== null ? v6 : (v5 !== null ? v5 : (v4 !== null ? v4 : (legacy !== null ? legacy : defaultVal))));
+    }
+
+    // ── Payload Packager & URL Transfer ──
+    function getSyncPayload() {
+      const payload = {
+        recd: recdMap,
+        paid: paidMap,
+        expPaid: expPaidMap,
+        expenses: expenses,
+        ins: insurance,
+        holdings: holdings,
+        price: sgbMarketPrice,
+        accs: bankAccounts,
+        cats: expenseCategories,
+        ts: Date.now()
+      };
+      try {
+        const jsonStr = JSON.stringify(payload);
+        return encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
+      } catch(e) {
+        console.error('getSyncPayload err:', e);
+        return '';
+      }
+    }
+
+    function applySyncData(data) {
+      if (!data || typeof data !== 'object') return false;
+      let countRecd = 0;
+      if (data.recd && typeof data.recd === 'object') {
+        recdMap = Object.assign({}, recdMap, data.recd);
+        safeSet('fc_recd_v7', recdMap);
+        safeSet('fc_recd_v6', recdMap);
+        safeSet('fc_recd', recdMap);
+        countRecd = Object.keys(data.recd).length;
+      }
+      if (data.paid && typeof data.paid === 'object') {
+        paidMap = Object.assign({}, paidMap, data.paid);
+        safeSet('fc_paid_v7', paidMap);
+        safeSet('fc_paid_v6', paidMap);
+        safeSet('fc_paid', paidMap);
+      }
+      if (data.expPaid && typeof data.expPaid === 'object') {
+        expPaidMap = Object.assign({}, expPaidMap, data.expPaid);
+        safeSet('fc_exp_paid_v7', expPaidMap);
+        safeSet('fc_exp_paid_v6', expPaidMap);
+      }
+      if (Array.isArray(data.expenses) && data.expenses.length) {
+        expenses = data.expenses;
+        safeSet('fc_expenses_v7', expenses);
+      }
+      if (Array.isArray(data.ins) && data.ins.length) {
+        insurance = data.ins;
+        safeSet('fc_ins_v7', insurance);
+      }
+      if (Array.isArray(data.holdings) && data.holdings.length) {
+        holdings = data.holdings;
+        safeSet('fc_holdings_v7', holdings);
+      }
+      if (data.price) {
+        sgbMarketPrice = Number(data.price);
+        safeSet('fc_sgb_price', sgbMarketPrice);
+      }
+      if (Array.isArray(data.accs) && data.accs.length) {
+        bankAccounts = sanitizeBankAccounts(data.accs);
+        safeSet('fc_bank_accs_v7', bankAccounts);
+      }
+      if (Array.isArray(data.cats) && data.cats.length) {
+        expenseCategories = data.cats;
+        safeSet('fc_exp_cats_v7', expenseCategories);
+      }
+      return true;
+    }
+
+    function checkUrlSync() {
+      try {
+        let raw = '';
+        if (window.location.hash && window.location.hash.includes('sync=')) {
+          raw = window.location.hash.split('sync=')[1];
+        } else if (window.location.search && window.location.search.includes('sync=')) {
+          const p = new URLSearchParams(window.location.search);
+          raw = p.get('sync');
+        }
+        if (raw) {
+          const decoded = decodeURIComponent(raw);
+          const jsonStr = decodeURIComponent(escape(atob(decoded)));
+          const data = JSON.parse(jsonStr);
+          if (applySyncData(data)) {
+            if (window.history && window.history.replaceState) {
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+            return true;
+          }
+        }
+      } catch(e) {
+        console.warn('URL sync error:', e);
+      }
+      return false;
+    }
+
+    // ── Dedicated Sync Modal Dialog ──
+    function openSyncModal() {
+      const recdCount = Object.keys(recdMap).filter(k => recdMap[k]).length;
+      const paidCount = Object.keys(paidMap).filter(k => paidMap[k]).length;
+      const expPaidCount = Object.keys(expPaidMap).filter(k => expPaidMap[k]).length;
+      const syncStr = getSyncPayload();
+
+      const html = `
+        <div class="modal-hdr">
+          <h3 class="modal-title">🔄 Device &amp; WebApp Synchronization</h3>
+          <button class="modal-close-btn" onclick="closeModal()">✕</button>
+        </div>
+        
+        <div style="background:var(--accent-mint-bg);border:1px solid var(--accent-mint-badge);padding:12px 14px;border-radius:14px;margin-bottom:16px;">
+          <div style="font-size:12px;font-weight:700;color:var(--accent-mint-text);">Current Local Status:</div>
+          <div style="font-size:13.5px;font-weight:800;color:var(--text-dark);margin-top:2px;">
+            ${recdCount} Inflows Marked Received • ${paidCount} Policies Paid • ${expPaidCount} Expenses Paid
+          </div>
+        </div>
+
+        <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:14px;line-height:1.4;">
+          Transfer your marked received coupons, paid statuses, expenses, and policies across devices (Mobile Phone ↔ Desktop WebApp) in 1 tap.
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div style="padding:14px;background:#f8fafc;border-radius:14px;border:1px solid var(--card-border);">
+            <div style="font-size:12.5px;font-weight:700;color:var(--text-dark);margin-bottom:4px;">1. Copy Sync Code from this Device</div>
+            <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:10px;">Tap below to copy your complete financial status to clipboard:</p>
+            <button class="btn-submit" style="margin:0;padding:10px;" onclick="copySyncToClipboard()">📋 Copy Sync Code</button>
+            <div id="copySuccessMsg" style="display:none;margin-top:8px;font-size:12px;font-weight:700;color:var(--accent-mint-text);text-align:center;">✓ Sync Code copied to clipboard!</div>
+          </div>
+
+          <div style="padding:14px;background:#f8fafc;border-radius:14px;border:1px solid var(--card-border);">
+            <div style="font-size:12.5px;font-weight:700;color:var(--text-dark);margin-bottom:4px;">2. Paste Sync Code from Other Device</div>
+            <p style="font-size:11.5px;color:var(--text-muted);margin-bottom:8px;">Paste the code copied from your mobile app / webapp:</p>
+            <textarea id="pasteSyncInput" class="form-input" style="height:60px;font-size:11px;font-family:monospace;" placeholder="Paste sync code here..."></textarea>
+            <button class="btn-submit" style="background:#0284c7;margin-top:8px;padding:10px;" onclick="applyPastedSync()">📥 Apply Sync Code Now</button>
+          </div>
+        </div>
+      `;
+      openModal(html);
+    }
+
+    function copySyncToClipboard() {
+      const str = getSyncPayload();
+      navigator.clipboard.writeText(str).then(() => {
+        const msg = document.getElementById('copySuccessMsg');
+        if (msg) msg.style.display = 'block';
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = str;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        const msg = document.getElementById('copySuccessMsg');
+        if (msg) msg.style.display = 'block';
+      });
+    }
+
+    function applyPastedSync() {
+      const val = (document.getElementById('pasteSyncInput').value || '').trim();
+      if (!val) {
+        alert('Please paste a valid sync code first.');
+        return;
+      }
+      try {
+        const decoded = decodeURIComponent(val);
+        const jsonStr = decodeURIComponent(escape(atob(decoded)));
+        const data = JSON.parse(jsonStr);
+        applySyncData(data);
+        alert('✓ Sync Successful! All marked-received items and statuses have been applied.');
+        closeModal();
+        render();
+      } catch(e) {
+        alert('Invalid sync code format. Please ensure you copied the entire code.');
+      }
+    }
+
+    checkUrlSync();
+    let holdings = getLegacyMerged('fc_holdings', SEED_HOLDINGS);
+    let transactions = getLegacyMerged('fc_tx', SEED_TX);
+    let insurance = getLegacyMerged('fc_ins', SEED_INS);
+    let expenses = getLegacyMerged('fc_expenses', DEFAULT_EXPENSES);
+    let expenseCategories = getLegacyMerged('fc_exp_cats', DEFAULT_CATS);
+    let bankAccounts = sanitizeBankAccounts(getLegacyMerged('fc_bank_accs', DEFAULT_ACCS));
+    let recdMap = getLegacyMerged('fc_recd', {});
+    let paidMap = getLegacyMerged('fc_paid', {});
+    let expPaidMap = getLegacyMerged('fc_exp_paid', {});
     let isPrivacyMode = safeGet('fc_privacy_v7', false);
     let sgbMarketPrice = safeGet('fc_sgb_price', 9800);
 
