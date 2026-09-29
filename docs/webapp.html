@@ -322,11 +322,15 @@
       align-items: center;
       gap: 8px;
       overflow-x: auto;
-      padding: 4px 0;
-      max-width: 580px;
-      scrollbar-width: none;
+      padding: 4px 2px 8px;
+      flex: 1;
+      min-width: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(10, 62, 47, 0.25) transparent;
     }
-    .topbar-center::-webkit-scrollbar { display: none; }
+    .topbar-center::-webkit-scrollbar { height: 3px; display: block; }
+    .topbar-center::-webkit-scrollbar-track { background: transparent; }
+    .topbar-center::-webkit-scrollbar-thumb { background: rgba(10,62,47,0.25); border-radius: 4px; }
 
     .member-chip {
       padding: 6px 14px;
